@@ -85,7 +85,7 @@ export default function DashboardPage() {
     }
   }
 
-  const selectEstablishment = useCallback(async (establishment: Establishment) => {
+  const selectEstablishment = useCallback(async (establishment: Establishment, loadGoogleSettings = true) => {
     setSelectedEstablishment(establishment);
     setGoogleSaveMessage('');
 
@@ -109,8 +109,10 @@ export default function DashboardPage() {
       if (res.ok) {
         const data = await res.json();
         setSelectedEstablishment(data.establishment);
-        setGoogleReviewUrl(data.establishment.google_review_url || '');
-        setShowGoogleReviewPrompt(Boolean(data.establishment.show_google_review_prompt));
+        if (loadGoogleSettings) {
+          setGoogleReviewUrl(data.establishment.google_review_url || '');
+          setShowGoogleReviewPrompt(Boolean(data.establishment.show_google_review_prompt));
+        }
         setFeedbacks(data.feedbacks);
         setStats(data.stats);
       }
@@ -119,11 +121,13 @@ export default function DashboardPage() {
     }
   }, [filter]);
 
+  // Reload feedbacks when filter changes (without overwriting Google settings)
   useEffect(() => {
     if (selectedEstablishment) {
-      selectEstablishment(selectedEstablishment);
+      selectEstablishment(selectedEstablishment, false);
     }
-  }, [filter, selectedEstablishment, selectEstablishment]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });

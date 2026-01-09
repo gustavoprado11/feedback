@@ -16,6 +16,7 @@ interface Establishment {
   alert_email: string;
   google_review_url?: string | null;
   show_google_review_prompt?: boolean;
+  weekly_report_enabled?: boolean;
 }
 
 interface Feedback {
@@ -50,6 +51,9 @@ export default function DashboardPage() {
   const [showGoogleReviewPrompt, setShowGoogleReviewPrompt] = useState(false);
   const [savingGoogleSettings, setSavingGoogleSettings] = useState(false);
   const [googleSaveMessage, setGoogleSaveMessage] = useState('');
+  const [weeklyReportEnabled, setWeeklyReportEnabled] = useState(false);
+  const [savingWeeklyReport, setSavingWeeklyReport] = useState(false);
+  const [weeklyReportMessage, setWeeklyReportMessage] = useState('');
   const [editingDetails, setEditingDetails] = useState(false);
   const [editName, setEditName] = useState('');
   const [editAlertEmail, setEditAlertEmail] = useState('');
@@ -120,6 +124,7 @@ export default function DashboardPage() {
         if (loadGoogleSettings) {
           setGoogleReviewUrl(data.establishment.google_review_url || '');
           setShowGoogleReviewPrompt(Boolean(data.establishment.show_google_review_prompt));
+          setWeeklyReportEnabled(Boolean(data.establishment.weekly_report_enabled));
         }
         setFeedbacks(data.feedbacks);
         setStats(data.stats);
@@ -201,6 +206,37 @@ export default function DashboardPage() {
       setGoogleSaveMessage('Não foi possível salvar as configurações.');
     } finally {
       setSavingGoogleSettings(false);
+    }
+  };
+
+  const handleSaveWeeklyReport = async () => {
+    if (!selectedEstablishment) return;
+
+    setSavingWeeklyReport(true);
+    setWeeklyReportMessage('');
+
+    try {
+      const res = await fetch(`/api/establishments/${selectedEstablishment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weeklyReportEnabled,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedEstablishment(data.establishment);
+        setWeeklyReportEnabled(Boolean(data.establishment.weekly_report_enabled));
+        setWeeklyReportMessage('Configurações salvas.');
+      } else {
+        setWeeklyReportMessage('Não foi possível salvar.');
+      }
+    } catch (error) {
+      console.error('Error saving weekly report settings:', error);
+      setWeeklyReportMessage('Não foi possível salvar.');
+    } finally {
+      setSavingWeeklyReport(false);
     }
   };
 
@@ -545,6 +581,50 @@ export default function DashboardPage() {
                 </button>
                 {googleSaveMessage && (
                   <p className="text-sm text-gray-600 mt-3">{googleSaveMessage}</p>
+                )}
+              </div>
+
+              {/* Weekly Report Settings */}
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h3 className="font-bold text-gray-800 mb-1">Relatório Semanal</h3>
+                <p className="text-gray-500 text-sm mb-4">
+                  Receba um resumo semanal com estatísticas e comentários por email.
+                </p>
+
+                <label className="block text-gray-700 font-medium mb-2">
+                  Receber relatório semanal por email
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setWeeklyReportEnabled((prev) => !prev)}
+                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                    weeklyReportEnabled ? 'bg-indigo-500' : 'bg-gray-200'
+                  }`}
+                  aria-pressed={weeklyReportEnabled}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      weeklyReportEnabled ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+
+                <p className="text-xs text-gray-400 mt-3">
+                  O relatório será enviado para: <span className="font-medium text-gray-600">{selectedEstablishment?.alert_email}</span>
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleSaveWeeklyReport}
+                  disabled={savingWeeklyReport}
+                  className={`w-full mt-4 py-3 rounded-xl font-bold text-white transition-colors ${
+                    savingWeeklyReport ? 'bg-gray-400' : 'bg-gray-800 hover:bg-gray-700'
+                  }`}
+                >
+                  {savingWeeklyReport ? 'Salvando...' : 'Salvar configurações'}
+                </button>
+                {weeklyReportMessage && (
+                  <p className="text-sm text-gray-600 mt-3">{weeklyReportMessage}</p>
                 )}
               </div>
             </div>

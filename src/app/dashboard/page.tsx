@@ -72,10 +72,16 @@ export default function DashboardPage() {
     try {
       const res = await fetch('/api/establishments');
       if (res.ok) {
-        const data = await res.json();
+        const data: { establishments: Establishment[] } = await res.json();
         setEstablishments(data.establishments);
-        if (data.establishments.length > 0 && !selectedEstablishment) {
-          selectEstablishment(data.establishments[0]);
+        const fallbackEstablishment = data.establishments[0];
+        const currentEstablishment = selectedEstablishment
+          ? data.establishments.find(
+            (item: Establishment) => item.id === selectedEstablishment.id
+          )
+          : null;
+        if (fallbackEstablishment && !currentEstablishment) {
+          selectEstablishment(fallbackEstablishment);
         }
       }
     } catch (error) {
@@ -267,6 +273,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             <span className="text-gray-600">{user?.email}</span>
             <button
+              type="button"
               onClick={handleLogout}
               className="text-gray-500 hover:text-gray-700"
             >
@@ -294,6 +301,7 @@ export default function DashboardPage() {
               Cadastre seu primeiro estabelecimento para começar a coletar feedback.
             </p>
             <button
+              type="button"
               onClick={() => setShowCreateModal(true)}
               className="px-6 py-3 bg-indigo-500 text-white font-bold rounded-xl hover:bg-indigo-600 transition-colors"
             >
@@ -341,6 +349,7 @@ export default function DashboardPage() {
 
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={downloadQRCode}
                     className="flex-1 flex items-center justify-center gap-2 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                   >
@@ -350,6 +359,7 @@ export default function DashboardPage() {
                     Salvar
                   </button>
                   <button
+                    type="button"
                     onClick={openFeedbackPage}
                     className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-colors"
                   >
@@ -445,6 +455,7 @@ export default function DashboardPage() {
 
                   <div className="flex gap-2">
                     <button
+                      type="button"
                       onClick={() => setFilter('all')}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         filter === 'all'
@@ -455,6 +466,7 @@ export default function DashboardPage() {
                       Todos
                     </button>
                     <button
+                      type="button"
                       onClick={() => setFilter('bad')}
                       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                         filter === 'bad'

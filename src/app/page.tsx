@@ -8,9 +8,13 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-lg">F</span>
+              <img
+                src="/diz-ai-logo.svg"
+                alt="Diz Aí"
+                className="w-full h-full object-contain rounded-xl"
+              />
             </div>
-            <span className="text-xl font-bold text-gray-800">FeedFlow</span>
+            <span className="text-xl font-bold text-gray-800">Diz Aí</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -102,7 +106,7 @@ export default function HomePage() {
         <section className="py-16 px-4">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl font-bold text-gray-800 text-center mb-12">
-              Por que usar FeedFlow?
+              Por que usar Diz Aí?
             </h2>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -197,9 +201,13 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">F</span>
+              <img
+                src="/diz-ai-logo.svg"
+                alt="Diz Aí"
+                className="w-full h-full object-contain rounded-lg"
+              />
             </div>
-            <span className="font-bold text-gray-800">FeedFlow</span>
+            <span className="font-bold text-gray-800">Diz Aí</span>
           </div>
           <p className="text-gray-500 text-sm">
             Feedback simples para estabelecimentos. Feito com carinho.

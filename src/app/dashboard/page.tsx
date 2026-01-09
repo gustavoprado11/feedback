@@ -212,9 +212,13 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold">F</span>
+              <img
+                src="/diz-ai-logo.svg"
+                alt="Diz Aí"
+                className="w-full h-full object-contain rounded-xl"
+              />
             </div>
-            <span className="text-xl font-bold text-gray-800">FeedFlow</span>
+            <span className="text-xl font-bold text-gray-800">Diz Aí</span>
           </div>
 
           <div className="flex items-center gap-4">

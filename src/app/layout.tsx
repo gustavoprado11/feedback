@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FeedFlow - Feedback Simples para Estabelecimentos",
+  title: "Diz Aí - Feedback Simples para Estabelecimentos",
   description: "Colete feedback dos seus clientes de forma rápida, anônima e privada via QR Code.",
 };
 

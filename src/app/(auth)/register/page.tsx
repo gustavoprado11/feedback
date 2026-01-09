@@ -50,9 +50,13 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-gray-800">
             <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold">F</span>
+              <img
+                src="/diz-ai-logo.svg"
+                alt="Diz Aí"
+                className="w-full h-full object-contain rounded-xl"
+              />
             </div>
-            FeedFlow
+            Diz Aí
           </Link>
         </div>
 

@@ -124,7 +124,7 @@ export default function FeedbackPage() {
           </p>
         </div>
         <footer className="absolute bottom-6 text-sm text-gray-500">
-          Powered by <span className="text-indigo-500 font-semibold">FeedFlow</span>
+          Powered by <span className="text-indigo-500 font-semibold">Diz Aí</span>
         </footer>
       </div>
     );
@@ -242,7 +242,7 @@ export default function FeedbackPage() {
       </main>
 
       <footer className="py-4 text-center text-sm text-gray-500">
-        Powered by <span className="text-indigo-500 font-semibold">FeedFlow</span>
+        Powered by <span className="text-indigo-500 font-semibold">Diz Aí</span>
       </footer>
 
       <style jsx>{`

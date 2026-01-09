@@ -49,6 +49,11 @@ export default function DashboardPage() {
   const [showGoogleReviewPrompt, setShowGoogleReviewPrompt] = useState(false);
   const [savingGoogleSettings, setSavingGoogleSettings] = useState(false);
   const [googleSaveMessage, setGoogleSaveMessage] = useState('');
+  const [editingDetails, setEditingDetails] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editAlertEmail, setEditAlertEmail] = useState('');
+  const [savingDetails, setSavingDetails] = useState(false);
+  const [detailsSaveMessage, setDetailsSaveMessage] = useState('');
 
   useEffect(() => {
     async function checkAuth() {
@@ -193,6 +198,54 @@ export default function DashboardPage() {
       setGoogleSaveMessage('Não foi possível salvar as configurações.');
     } finally {
       setSavingGoogleSettings(false);
+    }
+  };
+
+  const handleStartEditDetails = () => {
+    if (!selectedEstablishment) return;
+    setEditName(selectedEstablishment.name);
+    setEditAlertEmail(selectedEstablishment.alert_email);
+    setEditingDetails(true);
+    setDetailsSaveMessage('');
+  };
+
+  const handleCancelEditDetails = () => {
+    setEditingDetails(false);
+    setDetailsSaveMessage('');
+  };
+
+  const handleSaveDetails = async () => {
+    if (!selectedEstablishment) return;
+
+    setSavingDetails(true);
+    setDetailsSaveMessage('');
+
+    try {
+      const res = await fetch(`/api/establishments/${selectedEstablishment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editName.trim(),
+          alertEmail: editAlertEmail.trim(),
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedEstablishment(data.establishment);
+        setEstablishments(establishments.map(e =>
+          e.id === data.establishment.id ? data.establishment : e
+        ));
+        setEditingDetails(false);
+        setDetailsSaveMessage('Dados salvos.');
+      } else {
+        setDetailsSaveMessage('Não foi possível salvar.');
+      }
+    } catch (error) {
+      console.error('Error saving establishment details:', error);
+      setDetailsSaveMessage('Não foi possível salvar.');
+    } finally {
+      setSavingDetails(false);
     }
   };
 
@@ -367,22 +420,79 @@ export default function DashboardPage() {
 
               {/* Establishment Details */}
               <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <h3 className="font-bold text-gray-800 mb-4">Detalhes do Estabelecimento</h3>
-
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Nome</span>
-                    <span className="font-medium text-gray-800">{selectedEstablishment?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Slug</span>
-                    <span className="font-mono text-sm text-gray-600">{selectedEstablishment?.slug}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Email de Alerta</span>
-                    <span className="text-gray-800">{selectedEstablishment?.alert_email}</span>
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-gray-800">Detalhes do Estabelecimento</h3>
+                  {!editingDetails && (
+                    <button
+                      onClick={handleStartEditDetails}
+                      className="text-indigo-500 hover:text-indigo-600 text-sm font-medium"
+                    >
+                      Editar
+                    </button>
+                  )}
                 </div>
+
+                {editingDetails ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-gray-500 text-sm mb-1">Nome</label>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full p-2 border border-gray-200 rounded-lg focus:border-indigo-400 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-500 text-sm mb-1">Slug</label>
+                      <span className="block font-mono text-sm text-gray-400 p-2">{selectedEstablishment?.slug}</span>
+                    </div>
+                    <div>
+                      <label className="block text-gray-500 text-sm mb-1">Email de Alerta</label>
+                      <input
+                        type="email"
+                        value={editAlertEmail}
+                        onChange={(e) => setEditAlertEmail(e.target.value)}
+                        className="w-full p-2 border border-gray-200 rounded-lg focus:border-indigo-400 focus:outline-none"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={handleCancelEditDetails}
+                        className="flex-1 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={handleSaveDetails}
+                        disabled={savingDetails}
+                        className={`flex-1 py-2 rounded-lg font-medium text-white text-sm transition-colors ${
+                          savingDetails ? 'bg-gray-400' : 'bg-indigo-500 hover:bg-indigo-600'
+                        }`}
+                      >
+                        {savingDetails ? 'Salvando...' : 'Salvar'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Nome</span>
+                      <span className="font-medium text-gray-800">{selectedEstablishment?.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Slug</span>
+                      <span className="font-mono text-sm text-gray-600">{selectedEstablishment?.slug}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Email de Alerta</span>
+                      <span className="text-gray-800">{selectedEstablishment?.alert_email}</span>
+                    </div>
+                    {detailsSaveMessage && (
+                      <p className="text-sm text-green-600 pt-1">{detailsSaveMessage}</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="bg-white rounded-2xl border border-gray-100 p-6">

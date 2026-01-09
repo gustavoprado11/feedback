@@ -17,7 +17,7 @@ export default function RegisterPage() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('As senhas nao coincidem');
+      setError('As senhas não coincidem');
       return;
     }
 
@@ -50,9 +50,13 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-gray-800">
             <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold">F</span>
+              <img
+                src="/diz-ai-logo.svg"
+                alt="Diz Aí"
+                className="w-full h-full object-contain rounded-xl"
+              />
             </div>
-            FeedFlow
+            Diz Aí
           </Link>
         </div>
 
@@ -91,7 +95,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full p-3 border border-gray-200 rounded-xl focus:border-indigo-400 focus:outline-none"
-                placeholder="Minimo 6 caracteres"
+                placeholder="Mínimo 6 caracteres"
                 minLength={6}
                 required
               />
@@ -129,7 +133,7 @@ export default function RegisterPage() {
           </form>
 
           <p className="mt-6 text-center text-gray-600">
-            Ja tem conta?{' '}
+            Já tem conta?{' '}
             <Link href="/login" className="text-indigo-500 font-medium hover:underline">
               Entrar
             </Link>

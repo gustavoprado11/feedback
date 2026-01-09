@@ -172,9 +172,9 @@ export default function DashboardPage() {
     const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 1) return 'Agora';
-    if (diffMins < 60) return `${diffMins}min atras`;
-    if (diffHours < 24) return `${diffHours}h atras`;
-    if (diffDays < 7) return `${diffDays}d atras`;
+    if (diffMins < 60) return `${diffMins}min atrás`;
+    if (diffHours < 24) return `${diffHours}h atrás`;
+    if (diffDays < 7) return `${diffDays}d atrás`;
 
     return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -187,7 +187,7 @@ export default function DashboardPage() {
   const getRatingInfo = (rating: string) => {
     switch (rating) {
       case 'great':
-        return { label: 'Otimo', color: 'bg-green-100 text-green-700', icon: '😊' };
+        return { label: 'Ótimo', color: 'bg-green-100 text-green-700', icon: '😊' };
       case 'okay':
         return { label: 'Ok', color: 'bg-amber-100 text-amber-700', icon: '😐' };
       case 'bad':
@@ -212,9 +212,13 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold">F</span>
+              <img
+                src="/diz-ai-logo.svg"
+                alt="Diz Aí"
+                className="w-full h-full object-contain rounded-xl"
+              />
             </div>
-            <span className="text-xl font-bold text-gray-800">FeedFlow</span>
+            <span className="text-xl font-bold text-gray-800">Diz Aí</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -244,7 +248,7 @@ export default function DashboardPage() {
               Nenhum estabelecimento cadastrado
             </h2>
             <p className="text-gray-600 mb-6">
-              Cadastre seu primeiro estabelecimento para comecar a coletar feedback.
+              Cadastre seu primeiro estabelecimento para começar a coletar feedback.
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -264,7 +268,7 @@ export default function DashboardPage() {
                     <span className="text-2xl">😊</span>
                   </div>
                   <div className="text-3xl font-bold text-gray-800">{stats.happiness}%</div>
-                  <div className="text-gray-500 text-sm">SATISFACAO</div>
+                  <div className="text-gray-500 text-sm">SATISFAÇÃO</div>
                 </div>
                 <div className="bg-white rounded-2xl border border-gray-100 p-6">
                   <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3">
@@ -375,7 +379,7 @@ export default function DashboardPage() {
                     <div className="text-4xl mb-4">👻</div>
                     <h4 className="font-bold text-gray-800 mb-2">Nenhum feedback ainda</h4>
                     <p className="text-gray-500 text-sm">
-                      Compartilhe seu QR Code com os clientes para comecar a coletar insights!
+                      Compartilhe seu QR Code com os clientes para começar a coletar insights!
                     </p>
                   </div>
                 ) : (
@@ -436,7 +440,7 @@ export default function DashboardPage() {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   className="w-full p-3 border border-gray-200 rounded-xl focus:border-indigo-400 focus:outline-none"
-                  placeholder="Ex: Cafe Central"
+                  placeholder="Ex: Café Central"
                   required
                 />
               </div>
@@ -453,7 +457,7 @@ export default function DashboardPage() {
                   placeholder={user?.email || 'seu@email.com'}
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  Voce recebera alertas quando houver feedback negativo.
+                  Você receberá alertas quando houver feedback negativo.
                 </p>
               </div>
 

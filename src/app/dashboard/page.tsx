@@ -45,6 +45,7 @@ export default function DashboardPage() {
   const [newAlertEmail, setNewAlertEmail] = useState('');
   const [creating, setCreating] = useState(false);
   const [filter, setFilter] = useState<'all' | 'bad'>('all');
+  const [dateFilter, setDateFilter] = useState<number | null>(null);
   const [googleReviewUrl, setGoogleReviewUrl] = useState('');
   const [showGoogleReviewPrompt, setShowGoogleReviewPrompt] = useState(false);
   const [savingGoogleSettings, setSavingGoogleSettings] = useState(false);
@@ -109,8 +110,10 @@ export default function DashboardPage() {
 
     // Load feedbacks
     try {
-      const ratingParam = filter === 'bad' ? '&rating=bad' : '';
-      const res = await fetch(`/api/establishments/${establishment.id}?${ratingParam}`);
+      const params = new URLSearchParams();
+      if (filter === 'bad') params.append('rating', 'bad');
+      if (dateFilter) params.append('days', dateFilter.toString());
+      const res = await fetch(`/api/establishments/${establishment.id}?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setSelectedEstablishment(data.establishment);
@@ -124,7 +127,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Error loading feedbacks:', error);
     }
-  }, [filter]);
+  }, [filter, dateFilter]);
 
   // Reload feedbacks when filter changes (without overwriting Google settings)
   useEffect(() => {
@@ -132,7 +135,7 @@ export default function DashboardPage() {
       selectEstablishment(selectedEstablishment, false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter]);
+  }, [filter, dateFilter]);
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -549,35 +552,64 @@ export default function DashboardPage() {
             {/* Right Column - Feedbacks */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                    <h3 className="font-bold text-gray-800">Feedbacks em Tempo Real</h3>
+                <div className="flex flex-col gap-4 mb-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                      <h3 className="font-bold text-gray-800">Feedbacks em Tempo Real</h3>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setFilter('all')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          filter === 'all'
+                            ? 'bg-indigo-500 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Todos
+                      </button>
+                      <button
+                        onClick={() => setFilter('bad')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          filter === 'bad'
+                            ? 'bg-indigo-500 text-white'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Apenas Negativos
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setFilter('all')}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        filter === 'all'
-                          ? 'bg-indigo-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Todos
-                    </button>
-                    <button
-                      onClick={() => setFilter('bad')}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        filter === 'bad'
-                          ? 'bg-indigo-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      Apenas Negativos
-                    </button>
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <div className="flex gap-1">
+                      {[
+                        { label: 'Todos', value: null },
+                        { label: 'Hoje', value: 1 },
+                        { label: '7 dias', value: 7 },
+                        { label: '30 dias', value: 30 },
+                        { label: '90 dias', value: 90 },
+                      ].map((option) => (
+                        <button
+                          key={option.label}
+                          onClick={() => setDateFilter(option.value)}
+                          className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                            dateFilter === option.value
+                              ? 'bg-gray-800 text-white'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

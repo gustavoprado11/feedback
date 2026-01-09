@@ -72,11 +72,13 @@ export default function DashboardPage() {
     try {
       const res = await fetch('/api/establishments');
       if (res.ok) {
-        const data = await res.json();
+        const data: { establishments: Establishment[] } = await res.json();
         setEstablishments(data.establishments);
         const fallbackEstablishment = data.establishments[0];
         const currentEstablishment = selectedEstablishment
-          ? data.establishments.find((item) => item.id === selectedEstablishment.id)
+          ? data.establishments.find(
+            (item: Establishment) => item.id === selectedEstablishment.id
+          )
           : null;
         if (fallbackEstablishment && !currentEstablishment) {
           selectEstablishment(fallbackEstablishment);

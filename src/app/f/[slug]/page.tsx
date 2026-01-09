@@ -9,6 +9,8 @@ interface Establishment {
   id: string;
   name: string;
   slug: string;
+  google_review_url?: string | null;
+  show_google_review_prompt?: boolean;
 }
 
 export default function FeedbackPage() {
@@ -94,6 +96,11 @@ export default function FeedbackPage() {
   }
 
   if (submitted) {
+    const shouldShowGooglePrompt =
+      selectedRating === 'great' &&
+      establishment.show_google_review_prompt &&
+      establishment.google_review_url;
+
     return (
       <div className="min-h-screen bg-[#f0fdf4] flex flex-col items-center justify-center p-4">
         <div className="text-center">
@@ -122,6 +129,24 @@ export default function FeedbackPage() {
           <p className="text-gray-600 max-w-xs mx-auto">
             Seu feedback ajuda {establishment.name} a melhorar. Agradecemos seu tempo.
           </p>
+          {shouldShowGooglePrompt && (
+            <div className="mt-6 bg-white rounded-2xl border border-green-200 p-5 max-w-sm mx-auto">
+              <h2 className="text-lg font-bold text-gray-800 mb-2">
+                Avalie no Google
+              </h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Gostou da experiência? Sua avaliação no Google ajuda muito!
+              </p>
+              <a
+                href={establishment.google_review_url || undefined}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center w-full px-4 py-3 rounded-xl bg-indigo-500 text-white font-bold hover:bg-indigo-600 transition-colors"
+              >
+                Deixar avaliação
+              </a>
+            </div>
+          )}
         </div>
         <footer className="absolute bottom-6 text-sm text-gray-500">
           Powered by <span className="text-indigo-500 font-semibold">Diz Aí</span>

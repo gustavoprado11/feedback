@@ -21,6 +21,8 @@ export async function GET(
       id: establishment.id,
       name: establishment.name,
       slug: establishment.slug,
+      google_review_url: establishment.google_review_url,
+      show_google_review_prompt: establishment.show_google_review_prompt,
     },
   });
 }

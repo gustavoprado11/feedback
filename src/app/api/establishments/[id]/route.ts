@@ -86,12 +86,27 @@ export async function PUT(
   }
 
   try {
-    const { name, alertEmail } = await request.json();
+    const {
+      name,
+      alertEmail,
+      googleReviewUrl,
+      showGoogleReviewPrompt,
+    } = await request.json();
 
-    const updated = await updateEstablishment(id, {
+    const updates: Record<string, string | boolean | null> = {
       ...(name && { name }),
       ...(alertEmail && { alert_email: alertEmail }),
-    });
+    };
+
+    if (googleReviewUrl !== undefined) {
+      updates.google_review_url = googleReviewUrl || null;
+    }
+
+    if (showGoogleReviewPrompt !== undefined) {
+      updates.show_google_review_prompt = Boolean(showGoogleReviewPrompt);
+    }
+
+    const updated = await updateEstablishment(id, updates);
 
     return NextResponse.json({ establishment: updated });
   } catch (error) {

@@ -14,6 +14,8 @@ interface Establishment {
   name: string;
   slug: string;
   alert_email: string;
+  google_review_url?: string | null;
+  show_google_review_prompt?: boolean;
 }
 
 interface Feedback {
@@ -43,6 +45,10 @@ export default function DashboardPage() {
   const [newAlertEmail, setNewAlertEmail] = useState('');
   const [creating, setCreating] = useState(false);
   const [filter, setFilter] = useState<'all' | 'bad'>('all');
+  const [googleReviewUrl, setGoogleReviewUrl] = useState('');
+  const [showGoogleReviewPrompt, setShowGoogleReviewPrompt] = useState(false);
+  const [savingGoogleSettings, setSavingGoogleSettings] = useState(false);
+  const [googleSaveMessage, setGoogleSaveMessage] = useState('');
 
   useEffect(() => {
     async function checkAuth() {
@@ -81,6 +87,7 @@ export default function DashboardPage() {
 
   const selectEstablishment = useCallback(async (establishment: Establishment) => {
     setSelectedEstablishment(establishment);
+    setGoogleSaveMessage('');
 
     // Generate QR Code
     const feedbackUrl = `${window.location.origin}/f/${establishment.slug}`;
@@ -101,6 +108,9 @@ export default function DashboardPage() {
       const res = await fetch(`/api/establishments/${establishment.id}?${ratingParam}`);
       if (res.ok) {
         const data = await res.json();
+        setSelectedEstablishment(data.establishment);
+        setGoogleReviewUrl(data.establishment.google_review_url || '');
+        setShowGoogleReviewPrompt(Boolean(data.establishment.show_google_review_prompt));
         setFeedbacks(data.feedbacks);
         setStats(data.stats);
       }
@@ -146,6 +156,39 @@ export default function DashboardPage() {
       console.error('Error creating establishment:', error);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleSaveGoogleSettings = async () => {
+    if (!selectedEstablishment) return;
+
+    setSavingGoogleSettings(true);
+    setGoogleSaveMessage('');
+
+    try {
+      const res = await fetch(`/api/establishments/${selectedEstablishment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          googleReviewUrl: googleReviewUrl.trim() || null,
+          showGoogleReviewPrompt,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedEstablishment(data.establishment);
+        setGoogleReviewUrl(data.establishment.google_review_url || '');
+        setShowGoogleReviewPrompt(Boolean(data.establishment.show_google_review_prompt));
+        setGoogleSaveMessage('Configurações salvas.');
+      } else {
+        setGoogleSaveMessage('Não foi possível salvar as configurações.');
+      }
+    } catch (error) {
+      console.error('Error saving Google review settings:', error);
+      setGoogleSaveMessage('Não foi possível salvar as configurações.');
+    } finally {
+      setSavingGoogleSettings(false);
     }
   };
 
@@ -336,6 +379,56 @@ export default function DashboardPage() {
                     <span className="text-gray-800">{selectedEstablishment?.alert_email}</span>
                   </div>
                 </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h3 className="font-bold text-gray-800 mb-1">Avaliação no Google</h3>
+                <p className="text-gray-500 text-sm mb-4">
+                  Cole o link direto da avaliação e defina quando exibir o convite.
+                </p>
+
+                <label className="block text-gray-700 font-medium mb-2">
+                  Mostrar convite após feedback positivo
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowGoogleReviewPrompt((prev) => !prev)}
+                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                    showGoogleReviewPrompt ? 'bg-indigo-500' : 'bg-gray-200'
+                  }`}
+                  aria-pressed={showGoogleReviewPrompt}
+                >
+                  <span
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                      showGoogleReviewPrompt ? 'translate-x-7' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+
+                <label className="block text-gray-700 font-medium mt-4 mb-2">
+                  Link da avaliação no Google
+                </label>
+                <input
+                  type="url"
+                  value={googleReviewUrl}
+                  onChange={(e) => setGoogleReviewUrl(e.target.value)}
+                  placeholder="https://g.page/r/seu-negocio/review"
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:border-indigo-400 focus:outline-none"
+                />
+
+                <button
+                  type="button"
+                  onClick={handleSaveGoogleSettings}
+                  disabled={savingGoogleSettings}
+                  className={`w-full mt-4 py-3 rounded-xl font-bold text-white transition-colors ${
+                    savingGoogleSettings ? 'bg-gray-400' : 'bg-gray-800 hover:bg-gray-700'
+                  }`}
+                >
+                  {savingGoogleSettings ? 'Salvando...' : 'Salvar configurações'}
+                </button>
+                {googleSaveMessage && (
+                  <p className="text-sm text-gray-600 mt-3">{googleSaveMessage}</p>
+                )}
               </div>
             </div>
 

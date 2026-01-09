@@ -22,6 +22,8 @@ export interface Establishment {
   name: string;
   slug: string;
   alertEmail: string;
+  googleReviewUrl?: string | null;
+  showGoogleReviewPrompt?: boolean;
   userId: string;
   createdAt: string;
 }
@@ -85,12 +87,16 @@ export function createEstablishment(data: {
   name: string;
   slug: string;
   alertEmail: string;
+  googleReviewUrl?: string | null;
+  showGoogleReviewPrompt?: boolean;
   userId: string;
 }): Establishment {
   const db = readDb();
   const establishment: Establishment = {
     id: uuidv4(),
     ...data,
+    googleReviewUrl: data.googleReviewUrl ?? null,
+    showGoogleReviewPrompt: data.showGoogleReviewPrompt ?? false,
     createdAt: new Date().toISOString(),
   };
   db.establishments.push(establishment);

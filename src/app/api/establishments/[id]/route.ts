@@ -113,6 +113,13 @@ export async function PUT(
 
     const updated = await updateEstablishment(id, updates);
 
+    if (!updated) {
+      return NextResponse.json(
+        { error: 'Erro ao atualizar estabelecimento' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ establishment: updated });
   } catch (error) {
     console.error('Update establishment error:', error);

@@ -9,6 +9,8 @@ interface Establishment {
   id: string;
   name: string;
   slug: string;
+  google_review_enabled?: boolean;
+  google_review_url?: string | null;
 }
 
 export default function FeedbackPage() {
@@ -94,6 +96,11 @@ export default function FeedbackPage() {
   }
 
   if (submitted) {
+    const shouldShowGoogleReview =
+      selectedRating === 'great' &&
+      establishment.google_review_enabled &&
+      establishment.google_review_url;
+
     return (
       <div className="min-h-screen bg-[#f0fdf4] flex flex-col items-center justify-center p-4">
         <div className="text-center">
@@ -122,9 +129,34 @@ export default function FeedbackPage() {
           <p className="text-gray-600 max-w-xs mx-auto">
             Seu feedback ajuda {establishment.name} a melhorar. Agradecemos seu tempo.
           </p>
+          {shouldShowGoogleReview && (
+            <div className="mt-6 bg-white/80 border border-green-100 rounded-2xl p-4 text-sm text-gray-600">
+              <h2 className="text-base font-semibold text-gray-800 mb-1">Obrigado! 🙌</h2>
+              <p>
+                Ficamos felizes que você gostou. Se puder, uma avaliação no Google ajuda muito a
+                gente.
+              </p>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
+                <a
+                  href={establishment.google_review_url || undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl border border-green-200 text-green-700 text-sm font-semibold hover:bg-green-50 transition-colors"
+                >
+                  Avaliar no Google
+                </a>
+                <button
+                  type="button"
+                  className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  Agora não
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <footer className="absolute bottom-6 text-sm text-gray-500">
-          Powered by <span className="text-indigo-500 font-semibold">FeedFlow</span>
+          Powered by <span className="text-indigo-500 font-semibold">Diz Aí</span>
         </footer>
       </div>
     );
@@ -159,7 +191,7 @@ export default function FeedbackPage() {
     },
     {
       value: 'great' as const,
-      label: 'Otimo',
+      label: 'Ótimo',
       icon: (
         <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="10" />
@@ -178,13 +210,13 @@ export default function FeedbackPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-2xl md:text-3xl font-black text-gray-800 mb-1">
-              Como foi sua experiencia em
+              Como foi sua experiência em
             </h1>
             <h2 className="text-2xl md:text-3xl font-black text-indigo-500">
               {establishment.name}?
             </h2>
             <p className="text-gray-500 mt-3">
-              Selecione uma avaliacao abaixo.
+              Selecione uma avaliação abaixo.
             </p>
           </div>
 
@@ -238,11 +270,24 @@ export default function FeedbackPage() {
               </button>
             </div>
           )}
+
+          <div className="mt-6 text-center text-xs text-gray-500">
+            <p>Leva menos de 30 segundos. Anônimo e privado.</p>
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex items-center gap-1 text-xs text-gray-500 underline decoration-gray-300 underline-offset-4 transition-colors hover:text-gray-600 hover:decoration-gray-400"
+            >
+              Donos de negócio: receba feedbacks como este no seu estabelecimento
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
         </div>
       </main>
 
       <footer className="py-4 text-center text-sm text-gray-500">
-        Powered by <span className="text-indigo-500 font-semibold">FeedFlow</span>
+        Powered by <span className="text-indigo-500 font-semibold">Diz Aí</span>
       </footer>
 
       <style jsx>{`

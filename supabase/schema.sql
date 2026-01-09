@@ -18,6 +18,8 @@ create table if not exists establishments (
   name text not null,
   slug text unique not null,
   alert_email text not null,
+  google_review_enabled boolean not null default false,
+  google_review_url text,
   user_id uuid references users(id) on delete cascade not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

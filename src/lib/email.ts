@@ -24,13 +24,13 @@ export async function sendNegativeFeedbackAlert(
   }
 
   const mailOptions = {
-    from: `"FeedFlow" <${process.env.SMTP_USER}>`,
+    from: `"Diz Aí" <${process.env.SMTP_USER}>`,
     to,
     subject: `Alerta: Feedback negativo em ${establishmentName}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 20px; border-radius: 8px 8px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">FeedFlow</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">Diz Aí</h1>
         </div>
         <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px;">
           <h2 style="color: #1f2937; margin-top: 0;">Feedback Negativo Recebido</h2>

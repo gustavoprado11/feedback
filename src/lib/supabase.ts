@@ -18,6 +18,8 @@ export interface Establishment {
   name: string;
   slug: string;
   alert_email: string;
+  google_review_enabled: boolean;
+  google_review_url: string | null;
   user_id: string;
   created_at: string;
 }

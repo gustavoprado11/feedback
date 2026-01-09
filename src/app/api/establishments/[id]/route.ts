@@ -15,7 +15,7 @@ export async function GET(
 
   if (!user) {
     return NextResponse.json(
-      { error: 'Nao autenticado' },
+      { error: 'Não autenticado' },
       { status: 401 }
     );
   }
@@ -25,7 +25,7 @@ export async function GET(
 
   if (!establishment) {
     return NextResponse.json(
-      { error: 'Estabelecimento nao encontrado' },
+      { error: 'Estabelecimento não encontrado' },
       { status: 404 }
     );
   }
@@ -63,7 +63,7 @@ export async function PUT(
 
   if (!user) {
     return NextResponse.json(
-      { error: 'Nao autenticado' },
+      { error: 'Não autenticado' },
       { status: 401 }
     );
   }
@@ -73,7 +73,7 @@ export async function PUT(
 
   if (!establishment) {
     return NextResponse.json(
-      { error: 'Estabelecimento nao encontrado' },
+      { error: 'Estabelecimento não encontrado' },
       { status: 404 }
     );
   }
@@ -86,11 +86,37 @@ export async function PUT(
   }
 
   try {
-    const { name, alertEmail } = await request.json();
+    const { name, alertEmail, googleReviewEnabled, googleReviewUrl } = await request.json();
+
+    if (googleReviewEnabled === true && !googleReviewUrl) {
+      return NextResponse.json(
+        { error: 'O link do Google é obrigatório quando o convite está habilitado' },
+        { status: 400 }
+      );
+    }
+
+    if (googleReviewUrl) {
+      try {
+        const parsedUrl = new URL(googleReviewUrl);
+        if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+          return NextResponse.json(
+            { error: 'Informe um link do Google válido' },
+            { status: 400 }
+          );
+        }
+      } catch {
+        return NextResponse.json(
+          { error: 'Informe um link do Google válido' },
+          { status: 400 }
+        );
+      }
+    }
 
     const updated = await updateEstablishment(id, {
       ...(name && { name }),
       ...(alertEmail && { alert_email: alertEmail }),
+      ...(googleReviewEnabled !== undefined && { google_review_enabled: googleReviewEnabled }),
+      ...(googleReviewUrl !== undefined && { google_review_url: googleReviewUrl || null }),
     });
 
     return NextResponse.json({ establishment: updated });

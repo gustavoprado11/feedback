@@ -21,6 +21,8 @@ model Establishment {
   name        String
   slug        String     @unique
   alertEmail  String
+  googleReviewEnabled Boolean @default(false)
+  googleReviewUrl     String?
   userId      String
   user        User       @relation(fields: [userId], references: [id])
   feedbacks   Feedback[]

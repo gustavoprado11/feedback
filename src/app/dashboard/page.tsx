@@ -14,6 +14,8 @@ interface Establishment {
   name: string;
   slug: string;
   alert_email: string;
+  google_review_enabled?: boolean;
+  google_review_url?: string | null;
 }
 
 interface Feedback {
@@ -43,6 +45,11 @@ export default function DashboardPage() {
   const [newAlertEmail, setNewAlertEmail] = useState('');
   const [creating, setCreating] = useState(false);
   const [filter, setFilter] = useState<'all' | 'bad'>('all');
+  const [googleReviewEnabled, setGoogleReviewEnabled] = useState(false);
+  const [googleReviewUrl, setGoogleReviewUrl] = useState('');
+  const [googleReviewSaving, setGoogleReviewSaving] = useState(false);
+  const [googleReviewError, setGoogleReviewError] = useState('');
+  const [googleReviewSuccess, setGoogleReviewSuccess] = useState('');
 
   useEffect(() => {
     async function checkAuth() {
@@ -115,6 +122,60 @@ export default function DashboardPage() {
     }
   }, [filter, selectedEstablishment, selectEstablishment]);
 
+  useEffect(() => {
+    if (selectedEstablishment) {
+      setGoogleReviewEnabled(Boolean(selectedEstablishment.google_review_enabled));
+      setGoogleReviewUrl(selectedEstablishment.google_review_url || '');
+      setGoogleReviewError('');
+      setGoogleReviewSuccess('');
+    }
+  }, [selectedEstablishment]);
+
+  const saveGoogleReviewSettings = async () => {
+    if (!selectedEstablishment) return;
+
+    setGoogleReviewError('');
+    setGoogleReviewSuccess('');
+
+    if (googleReviewEnabled && !googleReviewUrl.trim()) {
+      setGoogleReviewError('Informe o link do Google antes de salvar.');
+      return;
+    }
+
+    setGoogleReviewSaving(true);
+    try {
+      const res = await fetch(`/api/establishments/${selectedEstablishment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          googleReviewEnabled,
+          googleReviewUrl: googleReviewEnabled ? googleReviewUrl.trim() : null,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setGoogleReviewError(data.error || 'Erro ao salvar o link do Google.');
+        return;
+      }
+
+      if (data.establishment) {
+        setSelectedEstablishment(data.establishment);
+        setEstablishments((prev) =>
+          prev.map((item) => (item.id === data.establishment.id ? data.establishment : item))
+        );
+      }
+
+      setGoogleReviewSuccess('Configuração salva com sucesso.');
+    } catch (error) {
+      console.error('Error saving Google review settings:', error);
+      setGoogleReviewError('Erro ao salvar o link do Google.');
+    } finally {
+      setGoogleReviewSaving(false);
+    }
+  };
+
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
@@ -172,9 +233,9 @@ export default function DashboardPage() {
     const diffDays = Math.floor(diffMs / 86400000);
 
     if (diffMins < 1) return 'Agora';
-    if (diffMins < 60) return `${diffMins}min atras`;
-    if (diffHours < 24) return `${diffHours}h atras`;
-    if (diffDays < 7) return `${diffDays}d atras`;
+    if (diffMins < 60) return `${diffMins}min atrás`;
+    if (diffHours < 24) return `${diffHours}h atrás`;
+    if (diffDays < 7) return `${diffDays}d atrás`;
 
     return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -187,7 +248,7 @@ export default function DashboardPage() {
   const getRatingInfo = (rating: string) => {
     switch (rating) {
       case 'great':
-        return { label: 'Otimo', color: 'bg-green-100 text-green-700', icon: '😊' };
+        return { label: 'Ótimo', color: 'bg-green-100 text-green-700', icon: '😊' };
       case 'okay':
         return { label: 'Ok', color: 'bg-amber-100 text-amber-700', icon: '😐' };
       case 'bad':
@@ -212,9 +273,13 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold">F</span>
+              <img
+                src="/diz-ai-logo.svg"
+                alt="Diz Aí"
+                className="w-full h-full object-contain rounded-xl"
+              />
             </div>
-            <span className="text-xl font-bold text-gray-800">FeedFlow</span>
+            <span className="text-xl font-bold text-gray-800">Diz Aí</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -244,7 +309,7 @@ export default function DashboardPage() {
               Nenhum estabelecimento cadastrado
             </h2>
             <p className="text-gray-600 mb-6">
-              Cadastre seu primeiro estabelecimento para comecar a coletar feedback.
+              Cadastre seu primeiro estabelecimento para começar a coletar feedback.
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -264,7 +329,7 @@ export default function DashboardPage() {
                     <span className="text-2xl">😊</span>
                   </div>
                   <div className="text-3xl font-bold text-gray-800">{stats.happiness}%</div>
-                  <div className="text-gray-500 text-sm">SATISFACAO</div>
+                  <div className="text-gray-500 text-sm">SATISFAÇÃO</div>
                 </div>
                 <div className="bg-white rounded-2xl border border-gray-100 p-6">
                   <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3">
@@ -333,6 +398,66 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h3 className="font-bold text-gray-800 mb-1">Avaliação no Google</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Cole aqui o link que leva diretamente para a tela de avaliação do seu negócio no
+                  Google.
+                </p>
+
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-medium text-gray-700">
+                    Mostrar convite após feedback positivo
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setGoogleReviewEnabled((prev) => !prev)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      googleReviewEnabled ? 'bg-indigo-500' : 'bg-gray-200'
+                    }`}
+                    aria-pressed={googleReviewEnabled}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        googleReviewEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Link da avaliação no Google
+                  </label>
+                  <input
+                    type="url"
+                    value={googleReviewUrl}
+                    onChange={(event) => setGoogleReviewUrl(event.target.value)}
+                    placeholder="https://g.page/r/seu-negocio/review"
+                    className="w-full p-3 border border-gray-200 rounded-xl focus:border-indigo-400 focus:outline-none"
+                    disabled={!googleReviewEnabled}
+                  />
+                </div>
+
+                {googleReviewError && (
+                  <p className="mt-3 text-sm text-red-600">{googleReviewError}</p>
+                )}
+                {googleReviewSuccess && (
+                  <p className="mt-3 text-sm text-green-600">{googleReviewSuccess}</p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={saveGoogleReviewSettings}
+                  disabled={googleReviewSaving}
+                  className={`mt-4 w-full py-3 rounded-xl font-semibold text-white transition-colors ${
+                    googleReviewSaving ? 'bg-gray-400' : 'bg-gray-800 hover:bg-gray-700'
+                  }`}
+                >
+                  {googleReviewSaving ? 'Salvando...' : 'Salvar configurações'}
+                </button>
+              </div>
             </div>
 
             {/* Right Column - Feedbacks */}
@@ -375,7 +500,7 @@ export default function DashboardPage() {
                     <div className="text-4xl mb-4">👻</div>
                     <h4 className="font-bold text-gray-800 mb-2">Nenhum feedback ainda</h4>
                     <p className="text-gray-500 text-sm">
-                      Compartilhe seu QR Code com os clientes para comecar a coletar insights!
+                      Compartilhe seu QR Code com os clientes para começar a coletar insights!
                     </p>
                   </div>
                 ) : (
@@ -436,7 +561,7 @@ export default function DashboardPage() {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   className="w-full p-3 border border-gray-200 rounded-xl focus:border-indigo-400 focus:outline-none"
-                  placeholder="Ex: Cafe Central"
+                  placeholder="Ex: Café Central"
                   required
                 />
               </div>
@@ -453,7 +578,7 @@ export default function DashboardPage() {
                   placeholder={user?.email || 'seu@email.com'}
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  Voce recebera alertas quando houver feedback negativo.
+                  Você receberá alertas quando houver feedback negativo.
                 </p>
               </div>
 

@@ -10,7 +10,7 @@ export async function GET(
 
   if (!establishment) {
     return NextResponse.json(
-      { error: 'Estabelecimento nao encontrado' },
+      { error: 'Estabelecimento não encontrado' },
       { status: 404 }
     );
   }
@@ -21,6 +21,8 @@ export async function GET(
       id: establishment.id,
       name: establishment.name,
       slug: establishment.slug,
+      google_review_enabled: establishment.google_review_enabled,
+      google_review_url: establishment.google_review_url,
     },
   });
 }

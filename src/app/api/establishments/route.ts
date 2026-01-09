@@ -4,7 +4,7 @@ import {
   createEstablishment,
   findEstablishmentsByUserId,
   findEstablishmentBySlug,
-} from '@/lib/db';
+} from '@/lib/supabase';
 import { generateSlug } from '@/lib/utils';
 
 export async function GET() {
@@ -12,12 +12,12 @@ export async function GET() {
 
   if (!user) {
     return NextResponse.json(
-      { error: 'Não autenticado' },
+      { error: 'Nao autenticado' },
       { status: 401 }
     );
   }
 
-  const establishments = findEstablishmentsByUserId(user.id);
+  const establishments = await findEstablishmentsByUserId(user.id);
   return NextResponse.json({ establishments });
 }
 
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json(
-      { error: 'Não autenticado' },
+      { error: 'Nao autenticado' },
       { status: 401 }
     );
   }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     if (!name) {
       return NextResponse.json(
-        { error: 'Nome é obrigatório' },
+        { error: 'Nome e obrigatorio' },
         { status: 400 }
       );
     }
@@ -44,15 +44,15 @@ export async function POST(request: NextRequest) {
     let slug = generateSlug(name);
 
     // Ensure slug is unique
-    while (findEstablishmentBySlug(slug)) {
+    while (await findEstablishmentBySlug(slug)) {
       slug = generateSlug(name);
     }
 
-    const establishment = createEstablishment({
+    const establishment = await createEstablishment({
       name,
       slug,
-      alertEmail: alertEmail || user.email,
-      userId: user.id,
+      alert_email: alertEmail || user.email,
+      user_id: user.id,
     });
 
     return NextResponse.json({ establishment });

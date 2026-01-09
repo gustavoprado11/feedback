@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, findUserByEmail } from '@/lib/db';
+import { createUser, findUserByEmail } from '@/lib/supabase';
 import { hashPassword, generateToken, setAuthCookie } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email e senha são obrigatórios' },
+        { error: 'Email e senha sao obrigatorios' },
         { status: 400 }
       );
     }
@@ -20,16 +20,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingUser = findUserByEmail(email);
+    const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Este email já está cadastrado' },
+        { error: 'Este email ja esta cadastrado' },
         { status: 400 }
       );
     }
 
     const hashedPassword = await hashPassword(password);
-    const user = createUser(email, hashedPassword);
+    const user = await createUser(email, hashedPassword);
 
     const token = generateToken(user.id);
     await setAuthCookie(token);

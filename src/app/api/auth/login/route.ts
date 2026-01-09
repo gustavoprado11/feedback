@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findUserByEmail } from '@/lib/db';
+import { findUserByEmail } from '@/lib/supabase';
 import { verifyPassword, generateToken, setAuthCookie } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -8,15 +8,15 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email e senha são obrigatórios' },
+        { error: 'Email e senha sao obrigatorios' },
         { status: 400 }
       );
     }
 
-    const user = findUserByEmail(email);
+    const user = await findUserByEmail(email);
     if (!user) {
       return NextResponse.json(
-        { error: 'Email ou senha inválidos' },
+        { error: 'Email ou senha invalidos' },
         { status: 401 }
       );
     }
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const isValid = await verifyPassword(password, user.password);
     if (!isValid) {
       return NextResponse.json(
-        { error: 'Email ou senha inválidos' },
+        { error: 'Email ou senha invalidos' },
         { status: 401 }
       );
     }

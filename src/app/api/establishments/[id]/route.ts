@@ -5,7 +5,7 @@ import {
   updateEstablishment,
   findFeedbacksByEstablishmentId,
   getFeedbackStats,
-} from '@/lib/db';
+} from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
@@ -15,22 +15,22 @@ export async function GET(
 
   if (!user) {
     return NextResponse.json(
-      { error: 'Não autenticado' },
+      { error: 'Nao autenticado' },
       { status: 401 }
     );
   }
 
   const { id } = await params;
-  const establishment = findEstablishmentById(id);
+  const establishment = await findEstablishmentById(id);
 
   if (!establishment) {
     return NextResponse.json(
-      { error: 'Estabelecimento não encontrado' },
+      { error: 'Estabelecimento nao encontrado' },
       { status: 404 }
     );
   }
 
-  if (establishment.userId !== user.id) {
+  if (establishment.user_id !== user.id) {
     return NextResponse.json(
       { error: 'Acesso negado' },
       { status: 403 }
@@ -41,12 +41,12 @@ export async function GET(
   const days = searchParams.get('days');
   const rating = searchParams.get('rating');
 
-  const feedbacks = findFeedbacksByEstablishmentId(id, {
+  const feedbacks = await findFeedbacksByEstablishmentId(id, {
     days: days ? parseInt(days) : undefined,
     rating: rating || undefined,
   });
 
-  const stats = getFeedbackStats(id);
+  const stats = await getFeedbackStats(id);
 
   return NextResponse.json({
     establishment,
@@ -63,22 +63,22 @@ export async function PUT(
 
   if (!user) {
     return NextResponse.json(
-      { error: 'Não autenticado' },
+      { error: 'Nao autenticado' },
       { status: 401 }
     );
   }
 
   const { id } = await params;
-  const establishment = findEstablishmentById(id);
+  const establishment = await findEstablishmentById(id);
 
   if (!establishment) {
     return NextResponse.json(
-      { error: 'Estabelecimento não encontrado' },
+      { error: 'Estabelecimento nao encontrado' },
       { status: 404 }
     );
   }
 
-  if (establishment.userId !== user.id) {
+  if (establishment.user_id !== user.id) {
     return NextResponse.json(
       { error: 'Acesso negado' },
       { status: 403 }
@@ -88,9 +88,9 @@ export async function PUT(
   try {
     const { name, alertEmail } = await request.json();
 
-    const updated = updateEstablishment(id, {
+    const updated = await updateEstablishment(id, {
       ...(name && { name }),
-      ...(alertEmail && { alertEmail }),
+      ...(alertEmail && { alert_email: alertEmail }),
     });
 
     return NextResponse.json({ establishment: updated });

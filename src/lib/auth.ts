@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-import { findUserById } from './db';
+import { findUserById } from './supabase';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'feedflow-secret-key';
 
@@ -34,7 +34,7 @@ export async function getCurrentUser() {
   const decoded = verifyToken(token);
   if (!decoded) return null;
 
-  const user = findUserById(decoded.userId);
+  const user = await findUserById(decoded.userId);
   if (!user) return null;
 
   return { id: user.id, email: user.email };

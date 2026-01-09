@@ -13,14 +13,14 @@ interface Establishment {
   id: string;
   name: string;
   slug: string;
-  alertEmail: string;
+  alert_email: string;
 }
 
 interface Feedback {
   id: string;
   rating: 'bad' | 'okay' | 'great';
   comment?: string;
-  createdAt: string;
+  created_at: string;
 }
 
 interface Stats {
@@ -329,7 +329,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Email de Alerta</span>
-                    <span className="text-gray-800">{selectedEstablishment?.alertEmail}</span>
+                    <span className="text-gray-800">{selectedEstablishment?.alert_email}</span>
                   </div>
                 </div>
               </div>
@@ -404,7 +404,7 @@ export default function DashboardPage() {
                               </div>
                             </div>
                             <span className="text-xs text-gray-400">
-                              {formatDate(feedback.createdAt)}
+                              {formatDate(feedback.created_at)}
                             </span>
                           </div>
                         </div>

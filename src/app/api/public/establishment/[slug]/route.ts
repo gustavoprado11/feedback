@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findEstablishmentBySlug } from '@/lib/db';
+import { findEstablishmentBySlug } from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const establishment = findEstablishmentBySlug(slug);
+  const establishment = await findEstablishmentBySlug(slug);
 
   if (!establishment) {
     return NextResponse.json(
-      { error: 'Estabelecimento não encontrado' },
+      { error: 'Estabelecimento nao encontrado' },
       { status: 404 }
     );
   }

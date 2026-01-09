@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createFeedback, findEstablishmentBySlug, findEstablishmentById } from '@/lib/db';
+import { createFeedback, findEstablishmentBySlug } from '@/lib/supabase';
 import { sendNegativeFeedbackAlert } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
@@ -8,37 +8,37 @@ export async function POST(request: NextRequest) {
 
     if (!rating || !establishmentSlug) {
       return NextResponse.json(
-        { error: 'Avaliação e estabelecimento são obrigatórios' },
+        { error: 'Avaliacao e estabelecimento sao obrigatorios' },
         { status: 400 }
       );
     }
 
     if (!['bad', 'okay', 'great'].includes(rating)) {
       return NextResponse.json(
-        { error: 'Avaliação inválida' },
+        { error: 'Avaliacao invalida' },
         { status: 400 }
       );
     }
 
-    const establishment = findEstablishmentBySlug(establishmentSlug);
+    const establishment = await findEstablishmentBySlug(establishmentSlug);
 
     if (!establishment) {
       return NextResponse.json(
-        { error: 'Estabelecimento não encontrado' },
+        { error: 'Estabelecimento nao encontrado' },
         { status: 404 }
       );
     }
 
-    const feedback = createFeedback({
+    await createFeedback({
       rating,
       comment: comment || undefined,
-      establishmentId: establishment.id,
+      establishment_id: establishment.id,
     });
 
     // Send alert for negative feedback
     if (rating === 'bad') {
       await sendNegativeFeedbackAlert(
-        establishment.alertEmail,
+        establishment.alert_email,
         establishment.name,
         comment
       );

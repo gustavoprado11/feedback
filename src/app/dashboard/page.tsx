@@ -176,19 +176,25 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSaveGoogleSettings = async () => {
+  const handleSaveGoogleSettings = async (overrides?: {
+    googleReviewUrl?: string;
+    showGoogleReviewPrompt?: boolean;
+  }) => {
     if (!selectedEstablishment) return;
 
     setSavingGoogleSettings(true);
     setGoogleSaveMessage('');
 
     try {
+      const nextGoogleReviewUrl = overrides?.googleReviewUrl ?? googleReviewUrl;
+      const nextShowGoogleReviewPrompt =
+        overrides?.showGoogleReviewPrompt ?? showGoogleReviewPrompt;
       const res = await fetch(`/api/establishments/${selectedEstablishment.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          googleReviewUrl: googleReviewUrl.trim() || null,
-          showGoogleReviewPrompt,
+          googleReviewUrl: nextGoogleReviewUrl.trim() || null,
+          showGoogleReviewPrompt: nextShowGoogleReviewPrompt,
         }),
       });
 
@@ -209,7 +215,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSaveWeeklyReport = async () => {
+  const handleSaveWeeklyReport = async (nextWeeklyReportEnabled = weeklyReportEnabled) => {
     if (!selectedEstablishment) return;
 
     setSavingWeeklyReport(true);
@@ -220,7 +226,7 @@ export default function DashboardPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          weeklyReportEnabled,
+          weeklyReportEnabled: nextWeeklyReportEnabled,
         }),
       });
 
@@ -545,7 +551,11 @@ export default function DashboardPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setShowGoogleReviewPrompt((prev) => !prev)}
+                  onClick={() => {
+                    const nextValue = !showGoogleReviewPrompt;
+                    setShowGoogleReviewPrompt(nextValue);
+                    void handleSaveGoogleSettings({ showGoogleReviewPrompt: nextValue });
+                  }}
                   className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
                     showGoogleReviewPrompt ? 'bg-indigo-500' : 'bg-gray-200'
                   }`}
@@ -565,20 +575,13 @@ export default function DashboardPage() {
                   type="url"
                   value={googleReviewUrl}
                   onChange={(e) => setGoogleReviewUrl(e.target.value)}
+                  onBlur={() => {
+                    void handleSaveGoogleSettings({ googleReviewUrl });
+                  }}
                   placeholder="https://g.page/r/seu-negocio/review"
                   className="w-full p-3 border border-gray-200 rounded-xl focus:border-indigo-400 focus:outline-none"
                 />
 
-                <button
-                  type="button"
-                  onClick={handleSaveGoogleSettings}
-                  disabled={savingGoogleSettings}
-                  className={`w-full mt-4 py-3 rounded-xl font-bold text-white transition-colors ${
-                    savingGoogleSettings ? 'bg-gray-400' : 'bg-gray-800 hover:bg-gray-700'
-                  }`}
-                >
-                  {savingGoogleSettings ? 'Salvando...' : 'Salvar configurações'}
-                </button>
                 {googleSaveMessage && (
                   <p className="text-sm text-gray-600 mt-3">{googleSaveMessage}</p>
                 )}
@@ -596,7 +599,11 @@ export default function DashboardPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setWeeklyReportEnabled((prev) => !prev)}
+                  onClick={() => {
+                    const nextValue = !weeklyReportEnabled;
+                    setWeeklyReportEnabled(nextValue);
+                    void handleSaveWeeklyReport(nextValue);
+                  }}
                   className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
                     weeklyReportEnabled ? 'bg-indigo-500' : 'bg-gray-200'
                   }`}
@@ -613,16 +620,6 @@ export default function DashboardPage() {
                   O relatório será enviado para: <span className="font-medium text-gray-600">{selectedEstablishment?.alert_email}</span>
                 </p>
 
-                <button
-                  type="button"
-                  onClick={handleSaveWeeklyReport}
-                  disabled={savingWeeklyReport}
-                  className={`w-full mt-4 py-3 rounded-xl font-bold text-white transition-colors ${
-                    savingWeeklyReport ? 'bg-gray-400' : 'bg-gray-800 hover:bg-gray-700'
-                  }`}
-                >
-                  {savingWeeklyReport ? 'Salvando...' : 'Salvar configurações'}
-                </button>
                 {weeklyReportMessage && (
                   <p className="text-sm text-gray-600 mt-3">{weeklyReportMessage}</p>
                 )}

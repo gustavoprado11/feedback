@@ -128,7 +128,7 @@ export async function updateEstablishment(
     .select()
     .single();
 
-  if (error) return null;
+  if (error) throw error;
   return data;
 }
 

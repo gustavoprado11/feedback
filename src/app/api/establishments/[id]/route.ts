@@ -15,7 +15,7 @@ export async function GET(
 
   if (!user) {
     return NextResponse.json(
-      { error: 'Nao autenticado' },
+      { error: 'Não autenticado' },
       { status: 401 }
     );
   }
@@ -25,7 +25,7 @@ export async function GET(
 
   if (!establishment) {
     return NextResponse.json(
-      { error: 'Estabelecimento nao encontrado' },
+      { error: 'Estabelecimento não encontrado' },
       { status: 404 }
     );
   }
@@ -63,7 +63,7 @@ export async function PUT(
 
   if (!user) {
     return NextResponse.json(
-      { error: 'Nao autenticado' },
+      { error: 'Não autenticado' },
       { status: 401 }
     );
   }
@@ -73,7 +73,7 @@ export async function PUT(
 
   if (!establishment) {
     return NextResponse.json(
-      { error: 'Estabelecimento nao encontrado' },
+      { error: 'Estabelecimento não encontrado' },
       { status: 404 }
     );
   }

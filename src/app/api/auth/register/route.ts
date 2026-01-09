@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email e senha sao obrigatorios' },
+        { error: 'Email e senha são obrigatórios' },
         { status: 400 }
       );
     }
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Este email ja esta cadastrado' },
+        { error: 'Este email já está cadastrado' },
         { status: 400 }
       );
     }

@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Email e senha sao obrigatorios' },
+        { error: 'Email e senha são obrigatórios' },
         { status: 400 }
       );
     }
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     const user = await findUserByEmail(email);
     if (!user) {
       return NextResponse.json(
-        { error: 'Email ou senha invalidos' },
+        { error: 'Email ou senha inválidos' },
         { status: 401 }
       );
     }
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const isValid = await verifyPassword(password, user.password);
     if (!isValid) {
       return NextResponse.json(
-        { error: 'Email ou senha invalidos' },
+        { error: 'Email ou senha inválidos' },
         { status: 401 }
       );
     }

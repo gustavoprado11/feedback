@@ -8,14 +8,14 @@ export async function POST(request: NextRequest) {
 
     if (!rating || !establishmentSlug) {
       return NextResponse.json(
-        { error: 'Avaliacao e estabelecimento sao obrigatorios' },
+        { error: 'Avaliação e estabelecimento são obrigatórios' },
         { status: 400 }
       );
     }
 
     if (!['bad', 'okay', 'great'].includes(rating)) {
       return NextResponse.json(
-        { error: 'Avaliacao invalida' },
+        { error: 'Avaliação inválida' },
         { status: 400 }
       );
     }
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     if (!establishment) {
       return NextResponse.json(
-        { error: 'Estabelecimento nao encontrado' },
+        { error: 'Estabelecimento não encontrado' },
         { status: 404 }
       );
     }

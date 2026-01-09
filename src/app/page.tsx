@@ -24,7 +24,7 @@ export default function HomePage() {
               href="/register"
               className="px-4 py-2 bg-indigo-500 text-white font-medium rounded-xl hover:bg-indigo-600 transition-colors"
             >
-              Comecar Gratis
+              Começar Grátis
             </Link>
           </div>
         </div>
@@ -39,14 +39,14 @@ export default function HomePage() {
               <span className="text-indigo-500">30 segundos</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Colete feedback de forma rapida, anonima e privada via QR Code.
-              Receba alertas instantaneos sobre problemas antes que virem avaliacoes negativas.
+              Colete feedback de forma rápida, anônima e privada via QR Code.
+              Receba alertas instantâneos sobre problemas antes que virem avaliações negativas.
             </p>
             <Link
               href="/register"
               className="inline-block px-8 py-4 bg-indigo-500 text-white font-bold text-lg rounded-xl hover:bg-indigo-600 transition-colors shadow-lg shadow-indigo-200"
             >
-              Comecar Agora - Gratis
+              Começar Agora - Grátis
             </Link>
           </div>
         </section>
@@ -67,7 +67,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">1. Gere seu QR Code</h3>
                 <p className="text-gray-600">
-                  Cadastre seu estabelecimento e receba um QR Code unico para imprimir ou exibir.
+                  Cadastre seu estabelecimento e receba um QR Code único para imprimir ou exibir.
                 </p>
               </div>
 
@@ -79,7 +79,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">2. Cliente escaneia</h3>
                 <p className="text-gray-600">
-                  O cliente escaneia o QR Code e da sua opiniao em menos de 30 segundos, sem cadastro.
+                  O cliente escaneia o QR Code e dá sua opinião em menos de 30 segundos, sem cadastro.
                 </p>
               </div>
 
@@ -91,7 +91,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">3. Receba alertas</h3>
                 <p className="text-gray-600">
-                  Veja todos os feedbacks no seu painel e receba alertas instantaneos sobre problemas.
+                  Veja todos os feedbacks no seu painel e receba alertas instantâneos sobre problemas.
                 </p>
               </div>
             </div>
@@ -114,9 +114,9 @@ export default function HomePage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 mb-1">100% Anonimo</h3>
+                    <h3 className="font-bold text-gray-800 mb-1">100% Anônimo</h3>
                     <p className="text-gray-600 text-sm">
-                      Clientes dao opinioes honestas porque nao precisam se identificar.
+                      Clientes dão opiniões honestas porque não precisam se identificar.
                     </p>
                   </div>
                 </div>
@@ -130,7 +130,7 @@ export default function HomePage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 mb-1">Super Rapido</h3>
+                    <h3 className="font-bold text-gray-800 mb-1">Super Rápido</h3>
                     <p className="text-gray-600 text-sm">
                       Menos de 30 segundos para o cliente deixar seu feedback.
                     </p>
@@ -164,7 +164,7 @@ export default function HomePage() {
                   <div>
                     <h3 className="font-bold text-gray-800 mb-1">Privado</h3>
                     <p className="text-gray-600 text-sm">
-                      Feedback visivel apenas para voce. Sem exposicao publica.
+                      Feedback visível apenas para você. Sem exposição pública.
                     </p>
                   </div>
                 </div>
@@ -180,13 +180,13 @@ export default function HomePage() {
               Pronto para ouvir seus clientes?
             </h2>
             <p className="text-indigo-100 mb-8">
-              Comece gratuitamente e veja a diferenca que o feedback em tempo real pode fazer.
+              Comece gratuitamente e veja a diferença que o feedback em tempo real pode fazer.
             </p>
             <Link
               href="/register"
               className="inline-block px-8 py-4 bg-white text-indigo-500 font-bold text-lg rounded-xl hover:bg-gray-100 transition-colors"
             >
-              Criar Conta Gratis
+              Criar Conta Grátis
             </Link>
           </div>
         </section>

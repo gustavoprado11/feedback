@@ -17,7 +17,7 @@ export default function RegisterPage() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('As senhas nao coincidem');
+      setError('As senhas não coincidem');
       return;
     }
 
@@ -91,7 +91,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full p-3 border border-gray-200 rounded-xl focus:border-indigo-400 focus:outline-none"
-                placeholder="Minimo 6 caracteres"
+                placeholder="Mínimo 6 caracteres"
                 minLength={6}
                 required
               />
@@ -129,7 +129,7 @@ export default function RegisterPage() {
           </form>
 
           <p className="mt-6 text-center text-gray-600">
-            Ja tem conta?{' '}
+            Já tem conta?{' '}
             <Link href="/login" className="text-indigo-500 font-medium hover:underline">
               Entrar
             </Link>

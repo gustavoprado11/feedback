@@ -159,7 +159,7 @@ export default function FeedbackPage() {
     },
     {
       value: 'great' as const,
-      label: 'Otimo',
+      label: 'Ótimo',
       icon: (
         <svg viewBox="0 0 24 24" className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="10" />
@@ -178,13 +178,13 @@ export default function FeedbackPage() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-2xl md:text-3xl font-black text-gray-800 mb-1">
-              Como foi sua experiencia em
+              Como foi sua experiência em
             </h1>
             <h2 className="text-2xl md:text-3xl font-black text-indigo-500">
               {establishment.name}?
             </h2>
             <p className="text-gray-500 mt-3">
-              Selecione uma avaliacao abaixo.
+              Selecione uma avaliação abaixo.
             </p>
           </div>
 

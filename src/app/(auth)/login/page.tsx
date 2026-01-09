@@ -46,7 +46,7 @@ export default function LoginPage() {
               <img
                 src="/diz-ai-logo.svg"
                 alt="Diz Aí"
-                className="w-full h-full object-contain rounded-xl"
+                className="w-6 h-6"
               />
             </div>
             Diz Aí

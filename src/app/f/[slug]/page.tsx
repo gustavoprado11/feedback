@@ -98,8 +98,8 @@ export default function FeedbackPage() {
   if (submitted) {
     const shouldShowGooglePrompt =
       selectedRating === 'great' &&
-      establishment.show_google_review_prompt &&
-      establishment.google_review_url;
+      establishment.show_google_review_prompt === true &&
+      !!establishment.google_review_url;
 
     return (
       <div className="min-h-screen bg-[#f0fdf4] flex flex-col items-center justify-center p-4">

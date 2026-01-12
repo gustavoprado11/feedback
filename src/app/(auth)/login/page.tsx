@@ -1,15 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [redirect, setRedirect] = useState<string | null>(null);
+
+  useEffect(() => {
+    const redirectParam = searchParams.get('redirect');
+    if (redirectParam) {
+      setRedirect(redirectParam);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +35,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        router.push('/dashboard');
+        router.push(redirect || '/dashboard');
       } else {
         setError(data.error || 'Erro ao fazer login');
       }
@@ -109,7 +118,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-gray-600">
             Não tem conta?{' '}
-            <Link href="/register" className="text-indigo-500 font-medium hover:underline">
+            <Link href={redirect ? `/register?redirect=${encodeURIComponent(redirect)}` : "/register"} className="text-indigo-500 font-medium hover:underline">
               Cadastre-se
             </Link>
           </p>

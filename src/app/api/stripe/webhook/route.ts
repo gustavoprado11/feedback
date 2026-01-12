@@ -51,7 +51,9 @@ export async function POST(request: NextRequest) {
         const userId = customer.metadata?.userId;
         if (!userId) break;
 
-        const endDate = new Date(subscription.current_period_end * 1000);
+        // current_period_end is a unix timestamp
+        const periodEnd = (subscription as any).current_period_end;
+        const endDate = new Date(periodEnd * 1000);
 
         await updateUserSubscription(userId, {
           stripe_subscription_id: subscription.id,

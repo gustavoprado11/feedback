@@ -139,10 +139,24 @@ export default function DashboardPage() {
   }, [filter]);
 
   useEffect(() => {
-    if (selectedEstablishment) {
-      selectEstablishment(selectedEstablishment);
+    async function reloadFeedbacks() {
+      if (!selectedEstablishment) return;
+
+      try {
+        const ratingParam = filter === 'bad' ? '&rating=bad' : '';
+        const res = await fetch(`/api/establishments/${selectedEstablishment.id}?${ratingParam}`);
+        if (res.ok) {
+          const data = await res.json();
+          setFeedbacks(data.feedbacks);
+          setStats(data.stats);
+        }
+      } catch (error) {
+        console.error('Error reloading feedbacks:', error);
+      }
     }
-  }, [filter, selectedEstablishment, selectEstablishment]);
+
+    reloadFeedbacks();
+  }, [filter, selectedEstablishment?.id]);
 
   const handleManageSubscription = async () => {
     setManagingSubscription(true);
@@ -216,16 +230,23 @@ export default function DashboardPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setSelectedEstablishment(data.establishment);
-        setGoogleReviewUrl(data.establishment.google_review_url || '');
-        setShowGoogleReviewPrompt(Boolean(data.establishment.show_google_review_prompt));
-        setGoogleSaveMessage('Configurações salvas.');
+        // Update the selected establishment with new data
+        setSelectedEstablishment((prev) => ({
+          ...prev!,
+          google_review_url: data.establishment.google_review_url,
+          show_google_review_prompt: data.establishment.show_google_review_prompt,
+        }));
+        setGoogleSaveMessage('✓ Configurações salvas com sucesso!');
+
+        // Clear success message after 3 seconds
+        setTimeout(() => setGoogleSaveMessage(''), 3000);
       } else {
-        setGoogleSaveMessage('Não foi possível salvar as configurações.');
+        const errorData = await res.json();
+        setGoogleSaveMessage(`✗ Erro: ${errorData.error || 'Não foi possível salvar'}`);
       }
     } catch (error) {
       console.error('Error saving Google review settings:', error);
-      setGoogleSaveMessage('Não foi possível salvar as configurações.');
+      setGoogleSaveMessage('✗ Erro ao salvar as configurações. Tente novamente.');
     } finally {
       setSavingGoogleSettings(false);
     }
@@ -533,13 +554,19 @@ export default function DashboardPage() {
                   onClick={handleSaveGoogleSettings}
                   disabled={savingGoogleSettings}
                   className={`w-full mt-4 py-3 rounded-xl font-bold text-white transition-colors ${
-                    savingGoogleSettings ? 'bg-gray-400' : 'bg-gray-800 hover:bg-gray-700'
+                    savingGoogleSettings ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-800 hover:bg-gray-700'
                   }`}
                 >
                   {savingGoogleSettings ? 'Salvando...' : 'Salvar configurações'}
                 </button>
                 {googleSaveMessage && (
-                  <p className="text-sm text-gray-600 mt-3">{googleSaveMessage}</p>
+                  <p className={`text-sm mt-3 font-medium ${
+                    googleSaveMessage.startsWith('✓')
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}>
+                    {googleSaveMessage}
+                  </p>
                 )}
               </div>
             </div>

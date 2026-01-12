@@ -99,11 +99,10 @@ function PricingContent() {
               {/* Features */}
               <ul className="space-y-4 mb-8">
                 {[
-                  'Estabelecimentos ilimitados',
+
                   'Feedbacks ilimitados',
                   'QR Codes personalizados',
                   'Dashboard com estatísticas',
-                  'Alertas por email',
                   'Integração com Google Reviews',
                   'Relatórios semanais',
                   'Suporte prioritário',

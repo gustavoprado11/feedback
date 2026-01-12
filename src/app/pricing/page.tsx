@@ -33,9 +33,20 @@ function PricingContent() {
     }
   }, [searchParams]);
 
+  // Auto-redirect to Stripe checkout after login
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'subscribe' && user && !loading) {
+      setLoading(true);
+      const stripePaymentLink = 'https://buy.stripe.com/9B628qgT21XT2KYfcIfw400';
+      const checkoutUrl = `${stripePaymentLink}?prefilled_email=${encodeURIComponent(user.email)}`;
+      window.location.href = checkoutUrl;
+    }
+  }, [user, searchParams, loading]);
+
   const handleSubscribe = async () => {
     if (!user) {
-      router.push('/login?redirect=/pricing');
+      router.push('/login?redirect=/pricing&action=subscribe');
       return;
     }
 
@@ -125,6 +136,12 @@ function PricingContent() {
               {!user && (
                 <p className="text-center text-sm text-gray-600 mt-4">
                   Você será direcionado para fazer login primeiro
+                </p>
+              )}
+
+              {user && loading && (
+                <p className="text-center text-sm text-indigo-600 mt-4 font-medium">
+                  Redirecionando para o checkout...
                 </p>
               )}
 

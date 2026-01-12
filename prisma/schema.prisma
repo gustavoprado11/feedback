@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String          @id @default(uuid())
+  email         String          @unique
+  password      String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  establishments Establishment[]
+}
+
+model Establishment {
+  id          String     @id @default(uuid())
+  name        String
+  slug        String     @unique
+  alertEmail  String
+  googleReviewUrl String?
+  showGoogleReviewPrompt Boolean @default(false)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  feedbacks   Feedback[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Feedback {
+  id              String        @id @default(uuid())
+  rating          String        // "bad", "okay", "great"
+  comment         String?
+  establishmentId String
+  establishment   Establishment @relation(fields: [establishmentId], references: [id])
+  createdAt       DateTime      @default(now())
+}

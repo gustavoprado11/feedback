@@ -2,7 +2,16 @@
 
 Este guia detalha como configurar o Stripe para pagamentos por assinatura na plataforma.
 
-## 1. Criar Produto no Stripe
+## ✅ Link de Pagamento Atual
+
+O sistema está configurado para usar o Stripe Payment Link:
+```
+https://buy.stripe.com/9B628qgT21XT2KYfcIfw400
+```
+
+Este link já está integrado e funcionando. O email do usuário é pré-preenchido automaticamente.
+
+## 1. Criar Produto no Stripe (Já Criado)
 
 1. Acesse o [Dashboard do Stripe](https://dashboard.stripe.com)
 2. Vá em **Produtos** > **Adicionar produto**
@@ -28,6 +37,8 @@ STRIPE_PRICE_ID="price_..." # Price ID do produto criado na etapa 1
 ## 3. Configurar Webhooks
 
 Os webhooks são essenciais para sincronizar o status das assinaturas.
+
+**IMPORTANTE:** O webhook está configurado para identificar usuários pelo email do Stripe Customer. Certifique-se de que os usuários usem o mesmo email no cadastro e no checkout do Stripe.
 
 ### Desenvolvimento Local (usando Stripe CLI)
 

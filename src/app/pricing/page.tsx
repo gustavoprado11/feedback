@@ -41,24 +41,11 @@ function PricingContent() {
 
     setLoading(true);
 
-    try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-      });
+    // Stripe Payment Link com email pré-preenchido
+    const stripePaymentLink = 'https://buy.stripe.com/9B628qgT21XT2KYfcIfw400';
+    const checkoutUrl = `${stripePaymentLink}?prefilled_email=${encodeURIComponent(user.email)}`;
 
-      const data = await response.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert('Erro ao iniciar checkout. Tente novamente.');
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error('Erro:', error);
-      alert('Erro ao processar pagamento. Tente novamente.');
-      setLoading(false);
-    }
+    window.location.href = checkoutUrl;
   };
 
   return (

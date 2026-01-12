@@ -1,7 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
-import { updateUserSubscription } from '@/lib/supabase';
+import { updateUserSubscription, findUserByEmail } from '@/lib/supabase';
 import Stripe from 'stripe';
+
+// Helper to get user ID from customer
+async function getUserIdFromCustomer(customerId: string): Promise<string | null> {
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    if (customer.deleted) return null;
+
+    // Try to get from metadata first
+    if (customer.metadata?.userId) {
+      return customer.metadata.userId;
+    }
+
+    // If no metadata, try to find user by email
+    if (customer.email) {
+      const user = await findUserByEmail(customer.email);
+      return user?.id || null;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error retrieving customer:', error);
+    return null;
+  }
+}
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -44,11 +68,7 @@ export async function POST(request: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
 
-        // Find user by customer ID
-        const customer = await stripe.customers.retrieve(customerId);
-        if (customer.deleted) break;
-
-        const userId = customer.metadata?.userId;
+        const userId = await getUserIdFromCustomer(customerId);
         if (!userId) break;
 
         // current_period_end is a unix timestamp
@@ -67,10 +87,7 @@ export async function POST(request: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
 
-        const customer = await stripe.customers.retrieve(customerId);
-        if (customer.deleted) break;
-
-        const userId = customer.metadata?.userId;
+        const userId = await getUserIdFromCustomer(customerId);
         if (!userId) break;
 
         await updateUserSubscription(userId, {
@@ -84,10 +101,7 @@ export async function POST(request: NextRequest) {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
 
-        const customer = await stripe.customers.retrieve(customerId);
-        if (customer.deleted) break;
-
-        const userId = customer.metadata?.userId;
+        const userId = await getUserIdFromCustomer(customerId);
         if (!userId) break;
 
         await updateUserSubscription(userId, {
@@ -100,10 +114,7 @@ export async function POST(request: NextRequest) {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
 
-        const customer = await stripe.customers.retrieve(customerId);
-        if (customer.deleted) break;
-
-        const userId = customer.metadata?.userId;
+        const userId = await getUserIdFromCustomer(customerId);
         if (!userId) break;
 
         // If subscription was past_due, reactivate it

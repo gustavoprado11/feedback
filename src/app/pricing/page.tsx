@@ -10,12 +10,14 @@ export const dynamic = 'force-dynamic';
 
 function PricingContent() {
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     // Check if user is authenticated
+    setCheckingAuth(true);
     fetch('/api/auth/me')
       .then((res) => res.json())
       .then((data) => {
@@ -23,7 +25,10 @@ function PricingContent() {
           setUser(data);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        setCheckingAuth(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -36,17 +41,24 @@ function PricingContent() {
   // Auto-redirect to Stripe checkout after login
   useEffect(() => {
     const action = searchParams.get('action');
-    if (action === 'subscribe' && user && !loading) {
+    if (action === 'subscribe' && user?.email && !loading && !checkingAuth) {
+      console.log('Auto-redirecting to Stripe checkout with email:', user.email);
       setLoading(true);
       const stripePaymentLink = 'https://buy.stripe.com/9B628qgT21XT2KYfcIfw400';
       const checkoutUrl = `${stripePaymentLink}?prefilled_email=${encodeURIComponent(user.email)}`;
-      window.location.href = checkoutUrl;
+
+      // Small delay to ensure state is updated
+      setTimeout(() => {
+        window.location.href = checkoutUrl;
+      }, 100);
     }
-  }, [user, searchParams, loading]);
+  }, [user, searchParams, loading, checkingAuth]);
 
   const handleSubscribe = async () => {
     if (!user) {
-      router.push('/login?redirect=/pricing&action=subscribe');
+      // Encode the full redirect URL properly
+      const redirectUrl = encodeURIComponent('/pricing?action=subscribe');
+      router.push(`/login?redirect=${redirectUrl}`);
       return;
     }
 
@@ -127,21 +139,27 @@ function PricingContent() {
               {/* CTA Button */}
               <button
                 onClick={handleSubscribe}
-                disabled={loading}
+                disabled={loading || checkingAuth}
                 className="w-full bg-indigo-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Processando...' : 'Assinar Agora'}
+                {checkingAuth ? 'Verificando...' : loading ? 'Processando...' : 'Assinar Agora'}
               </button>
 
-              {!user && (
+              {!user && !checkingAuth && (
                 <p className="text-center text-sm text-gray-600 mt-4">
                   Você será direcionado para fazer login primeiro
                 </p>
               )}
 
+              {checkingAuth && (
+                <p className="text-center text-sm text-gray-600 mt-4">
+                  Verificando autenticação...
+                </p>
+              )}
+
               {user && loading && (
                 <p className="text-center text-sm text-indigo-600 mt-4 font-medium">
-                  Redirecionando para o checkout...
+                  Redirecionando para o checkout do Stripe...
                 </p>
               )}
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function PricingPage() {
+function PricingContent() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
@@ -162,5 +162,13 @@ export default function PricingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div></div>}>
+      <PricingContent />
+    </Suspense>
   );
 }

@@ -11,6 +11,10 @@ export interface User {
   email: string;
   password: string;
   created_at: string;
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
+  subscription_status?: string;
+  subscription_end_date?: string;
 }
 
 export interface Establishment {
@@ -60,6 +64,26 @@ export async function findUserById(id: string): Promise<User | null> {
     .from('users')
     .select('*')
     .eq('id', id)
+    .single();
+
+  if (error) return null;
+  return data;
+}
+
+export async function updateUserSubscription(
+  userId: string,
+  subscriptionData: {
+    stripe_customer_id?: string;
+    stripe_subscription_id?: string;
+    subscription_status?: string;
+    subscription_end_date?: string;
+  }
+): Promise<User | null> {
+  const { data, error } = await supabase
+    .from('users')
+    .update(subscriptionData)
+    .eq('id', userId)
+    .select()
     .single();
 
   if (error) return null;

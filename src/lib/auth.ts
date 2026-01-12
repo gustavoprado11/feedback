@@ -37,7 +37,32 @@ export async function getCurrentUser() {
   const user = await findUserById(decoded.userId);
   if (!user) return null;
 
-  return { id: user.id, email: user.email };
+  return {
+    id: user.id,
+    email: user.email,
+    subscriptionStatus: user.subscription_status,
+    subscriptionEndDate: user.subscription_end_date,
+    stripeCustomerId: user.stripe_customer_id,
+  };
+}
+
+export async function hasActiveSubscription(userId: string): Promise<boolean> {
+  const user = await findUserById(userId);
+  if (!user) return false;
+
+  // Check if subscription is active
+  if (user.subscription_status === 'active') return true;
+
+  // Check if subscription is trialing
+  if (user.subscription_status === 'trialing') return true;
+
+  // Check if subscription has ended but grace period is still valid
+  if (user.subscription_end_date) {
+    const endDate = new Date(user.subscription_end_date);
+    return endDate > new Date();
+  }
+
+  return false;
 }
 
 export async function setAuthCookie(token: string) {

@@ -7,6 +7,8 @@ import QRCode from 'qrcode';
 interface User {
   id: string;
   email: string;
+  subscriptionStatus?: string;
+  subscriptionEndDate?: string;
 }
 
 interface Establishment {
@@ -49,6 +51,7 @@ export default function DashboardPage() {
   const [showGoogleReviewPrompt, setShowGoogleReviewPrompt] = useState(false);
   const [savingGoogleSettings, setSavingGoogleSettings] = useState(false);
   const [googleSaveMessage, setGoogleSaveMessage] = useState('');
+  const [managingSubscription, setManagingSubscription] = useState(false);
 
   useEffect(() => {
     async function checkAuth() {
@@ -56,7 +59,12 @@ export default function DashboardPage() {
         const res = await fetch('/api/auth/me');
         if (res.ok) {
           const data = await res.json();
-          setUser(data.user);
+          setUser({
+            id: data.user.id,
+            email: data.user.email,
+            subscriptionStatus: data.user.subscriptionStatus,
+            subscriptionEndDate: data.user.subscriptionEndDate,
+          });
           loadEstablishments();
         } else {
           router.push('/login');
@@ -83,6 +91,11 @@ export default function DashboardPage() {
         if (fallbackEstablishment && !currentEstablishment) {
           selectEstablishment(fallbackEstablishment);
         }
+      } else if (res.status === 403) {
+        // User doesn't have active subscription
+        const data = await res.json();
+        alert(data.error);
+        router.push('/pricing');
       }
     } catch (error) {
       console.error('Error loading establishments:', error);
@@ -130,6 +143,26 @@ export default function DashboardPage() {
       selectEstablishment(selectedEstablishment);
     }
   }, [filter, selectedEstablishment, selectEstablishment]);
+
+  const handleManageSubscription = async () => {
+    setManagingSubscription(true);
+
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' });
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Erro ao acessar portal de gerenciamento');
+        setManagingSubscription(false);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Erro ao acessar portal de gerenciamento');
+      setManagingSubscription(false);
+    }
+  };
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -312,6 +345,75 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column */}
             <div className="space-y-6">
+              {/* Subscription Status */}
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h3 className="font-bold text-gray-800 mb-1">Assinatura</h3>
+                <p className="text-gray-500 text-sm mb-4">Gerencie sua assinatura</p>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Status</span>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        user?.subscriptionStatus === 'active'
+                          ? 'bg-green-100 text-green-700'
+                          : user?.subscriptionStatus === 'trialing'
+                          ? 'bg-blue-100 text-blue-700'
+                          : user?.subscriptionStatus === 'past_due'
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      {user?.subscriptionStatus === 'active'
+                        ? 'Ativa'
+                        : user?.subscriptionStatus === 'trialing'
+                        ? 'Período de teste'
+                        : user?.subscriptionStatus === 'past_due'
+                        ? 'Pagamento pendente'
+                        : 'Inativa'}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Plano</span>
+                    <span className="font-medium text-gray-800">Profissional</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Valor</span>
+                    <span className="font-medium text-gray-800">R$ 19,90/mês</span>
+                  </div>
+
+                  {user?.subscriptionEndDate && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Próxima cobrança</span>
+                      <span className="text-gray-800">
+                        {new Date(user.subscriptionEndDate).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {user?.subscriptionStatus === 'active' || user?.subscriptionStatus === 'trialing' ? (
+                  <button
+                    type="button"
+                    onClick={handleManageSubscription}
+                    disabled={managingSubscription}
+                    className="w-full mt-4 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  >
+                    {managingSubscription ? 'Carregando...' : 'Gerenciar Assinatura'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => router.push('/pricing')}
+                    className="w-full mt-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors font-bold"
+                  >
+                    Assinar Agora
+                  </button>
+                )}
+              </div>
+
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white rounded-2xl border border-gray-100 p-6">

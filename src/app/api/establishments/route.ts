@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, hasActiveSubscription } from '@/lib/auth';
 import {
   createEstablishment,
   findEstablishmentsByUserId,
@@ -17,6 +17,15 @@ export async function GET() {
     );
   }
 
+  // Check if user has active subscription
+  const hasSubscription = await hasActiveSubscription(user.id);
+  if (!hasSubscription) {
+    return NextResponse.json(
+      { error: 'Assinatura inativa. Assine para acessar o sistema.' },
+      { status: 403 }
+    );
+  }
+
   const establishments = await findEstablishmentsByUserId(user.id);
   return NextResponse.json({ establishments });
 }
@@ -28,6 +37,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: 'Não autenticado' },
       { status: 401 }
+    );
+  }
+
+  // Check if user has active subscription
+  const hasSubscription = await hasActiveSubscription(user.id);
+  if (!hasSubscription) {
+    return NextResponse.json(
+      { error: 'Assinatura inativa. Assine para acessar o sistema.' },
+      { status: 403 }
     );
   }
 

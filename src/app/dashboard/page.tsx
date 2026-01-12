@@ -52,6 +52,11 @@ export default function DashboardPage() {
   const [savingGoogleSettings, setSavingGoogleSettings] = useState(false);
   const [googleSaveMessage, setGoogleSaveMessage] = useState('');
   const [managingSubscription, setManagingSubscription] = useState(false);
+  const [editingEstablishment, setEditingEstablishment] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editAlertEmail, setEditAlertEmail] = useState('');
+  const [savingEstablishment, setSavingEstablishment] = useState(false);
+  const [establishmentSaveMessage, setEstablishmentSaveMessage] = useState('');
 
   useEffect(() => {
     async function checkAuth() {
@@ -212,6 +217,70 @@ export default function DashboardPage() {
     }
   };
 
+  const handleEditEstablishment = () => {
+    if (!selectedEstablishment) return;
+    setEditName(selectedEstablishment.name);
+    setEditAlertEmail(selectedEstablishment.alert_email);
+    setEditingEstablishment(true);
+    setEstablishmentSaveMessage('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingEstablishment(false);
+    setEditName('');
+    setEditAlertEmail('');
+    setEstablishmentSaveMessage('');
+  };
+
+  const handleSaveEstablishment = async () => {
+    if (!selectedEstablishment) return;
+
+    setSavingEstablishment(true);
+    setEstablishmentSaveMessage('');
+
+    try {
+      const res = await fetch(`/api/establishments/${selectedEstablishment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editName.trim(),
+          alertEmail: editAlertEmail.trim(),
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Update the selected establishment with new data
+        setSelectedEstablishment((prev) => ({
+          ...prev!,
+          name: data.establishment.name,
+          alert_email: data.establishment.alert_email,
+        }));
+        // Update establishments list
+        setEstablishments((prev) =>
+          prev.map((est) =>
+            est.id === selectedEstablishment.id
+              ? { ...est, name: data.establishment.name, alert_email: data.establishment.alert_email }
+              : est
+          )
+        );
+        setEstablishmentSaveMessage('✓ Informações atualizadas com sucesso!');
+        setEditingEstablishment(false);
+
+        // Clear success message after 3 seconds
+        setTimeout(() => setEstablishmentSaveMessage(''), 3000);
+      } else {
+        const errorData = await res.json();
+        setEstablishmentSaveMessage(`✗ Erro: ${errorData.error || 'Não foi possível salvar'}`);
+      }
+    } catch (error) {
+      console.error('Error saving establishment:', error);
+      setEstablishmentSaveMessage('✗ Erro ao salvar. Tente novamente.');
+    } finally {
+      setSavingEstablishment(false);
+    }
+  };
+
   const handleSaveGoogleSettings = async () => {
     if (!selectedEstablishment) return;
 
@@ -314,12 +383,10 @@ export default function DashboardPage() {
       <header className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
-              <img
-                src="/diz-ai-logo.svg"
-                alt="Diz Aí"
-                className="w-full h-full object-contain rounded-xl"
-              />
+            <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3 .97 4.29L2 22l5.71-.97C9 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.38 0-2.68-.28-3.88-.78l-.28-.12-2.9.49.49-2.9-.12-.28C4.78 14.68 4.5 13.38 4.5 12c0-4.14 3.36-7.5 7.5-7.5s7.5 3.36 7.5 7.5-3.36 7.5-7.5 7.5z"/>
+              </svg>
             </div>
             <span className="text-xl font-bold text-gray-800">Diz Aí</span>
           </div>
@@ -496,22 +563,102 @@ export default function DashboardPage() {
 
               {/* Establishment Details */}
               <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                <h3 className="font-bold text-gray-800 mb-4">Detalhes do Estabelecimento</h3>
-
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Nome</span>
-                    <span className="font-medium text-gray-800">{selectedEstablishment?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Slug</span>
-                    <span className="font-mono text-sm text-gray-600">{selectedEstablishment?.slug}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Email de Alerta</span>
-                    <span className="text-gray-800">{selectedEstablishment?.alert_email}</span>
-                  </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-gray-800">Detalhes do Estabelecimento</h3>
+                  {!editingEstablishment && (
+                    <button
+                      type="button"
+                      onClick={handleEditEstablishment}
+                      className="text-indigo-500 hover:text-indigo-600 text-sm font-medium flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Editar
+                    </button>
+                  )}
                 </div>
+
+                {!editingEstablishment ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Nome</span>
+                      <span className="font-medium text-gray-800">{selectedEstablishment?.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Slug</span>
+                      <span className="font-mono text-sm text-gray-600">{selectedEstablishment?.slug}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Email de Alerta</span>
+                      <span className="text-gray-800">{selectedEstablishment?.alert_email}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-gray-700 font-medium mb-2">Nome</label>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:border-indigo-400 focus:outline-none"
+                        placeholder="Nome do estabelecimento"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 font-medium mb-2">Slug</label>
+                      <input
+                        type="text"
+                        value={selectedEstablishment?.slug}
+                        disabled
+                        className="w-full p-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">O slug não pode ser alterado</p>
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 font-medium mb-2">Email de Alerta</label>
+                      <input
+                        type="email"
+                        value={editAlertEmail}
+                        onChange={(e) => setEditAlertEmail(e.target.value)}
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:border-indigo-400 focus:outline-none"
+                        placeholder="email@exemplo.com"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={handleCancelEdit}
+                        disabled={savingEstablishment}
+                        className="flex-1 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSaveEstablishment}
+                        disabled={savingEstablishment}
+                        className={`flex-1 py-3 rounded-xl font-bold text-white transition-colors ${
+                          savingEstablishment ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
+                        }`}
+                      >
+                        {savingEstablishment ? 'Salvando...' : 'Salvar'}
+                      </button>
+                    </div>
+
+                    {establishmentSaveMessage && (
+                      <p className={`text-sm font-medium ${
+                        establishmentSaveMessage.startsWith('✓')
+                          ? 'text-green-600'
+                          : 'text-red-600'
+                      }`}>
+                        {establishmentSaveMessage}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="bg-white rounded-2xl border border-gray-100 p-6">

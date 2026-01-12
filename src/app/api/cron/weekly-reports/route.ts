@@ -10,16 +10,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all establishments with active subscriptions
+    // Get all establishments with active subscriptions and weekly reports enabled
     const { data: establishments, error: estError } = await supabase
       .from('establishments')
       .select(`
         id,
         name,
         alert_email,
+        weekly_reports_enabled,
         users!inner(subscription_status)
       `)
-      .eq('users.subscription_status', 'active');
+      .eq('users.subscription_status', 'active')
+      .eq('weekly_reports_enabled', true);
 
     if (estError) {
       console.error('Error fetching establishments:', estError);

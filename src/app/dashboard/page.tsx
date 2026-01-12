@@ -18,6 +18,7 @@ interface Establishment {
   alert_email: string;
   google_review_url?: string | null;
   show_google_review_prompt?: boolean;
+  weekly_reports_enabled?: boolean;
 }
 
 interface Feedback {
@@ -51,6 +52,8 @@ export default function DashboardPage() {
   const [showGoogleReviewPrompt, setShowGoogleReviewPrompt] = useState(false);
   const [savingGoogleSettings, setSavingGoogleSettings] = useState(false);
   const [googleSaveMessage, setGoogleSaveMessage] = useState('');
+  const [weeklyReportsEnabled, setWeeklyReportsEnabled] = useState(true);
+  const [savingWeeklyReports, setSavingWeeklyReports] = useState(false);
   const [managingSubscription, setManagingSubscription] = useState(false);
   const [editingEstablishment, setEditingEstablishment] = useState(false);
   const [editName, setEditName] = useState('');
@@ -135,6 +138,7 @@ export default function DashboardPage() {
         setSelectedEstablishment(data.establishment);
         setGoogleReviewUrl(data.establishment.google_review_url || '');
         setShowGoogleReviewPrompt(Boolean(data.establishment.show_google_review_prompt));
+        setWeeklyReportsEnabled(data.establishment.weekly_reports_enabled !== false); // Default to true
         setFeedbacks(data.feedbacks);
         setStats(data.stats);
       }
@@ -318,6 +322,115 @@ export default function DashboardPage() {
       setGoogleSaveMessage('✗ Erro ao salvar as configurações. Tente novamente.');
     } finally {
       setSavingGoogleSettings(false);
+    }
+  };
+
+  const handleToggleGoogleReviewPrompt = async () => {
+    if (!selectedEstablishment) return;
+
+    const newValue = !showGoogleReviewPrompt;
+    setShowGoogleReviewPrompt(newValue);
+    setSavingGoogleSettings(true);
+    setGoogleSaveMessage('');
+
+    try {
+      const res = await fetch(`/api/establishments/${selectedEstablishment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          showGoogleReviewPrompt: newValue,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedEstablishment((prev) => ({
+          ...prev!,
+          show_google_review_prompt: data.establishment.show_google_review_prompt,
+        }));
+        setGoogleSaveMessage('✓ Configuração atualizada!');
+        setTimeout(() => setGoogleSaveMessage(''), 2000);
+      } else {
+        setShowGoogleReviewPrompt(!newValue); // Revert on error
+        setGoogleSaveMessage('✗ Erro ao salvar');
+        setTimeout(() => setGoogleSaveMessage(''), 2000);
+      }
+    } catch (error) {
+      console.error('Error toggling Google review prompt:', error);
+      setShowGoogleReviewPrompt(!newValue); // Revert on error
+      setGoogleSaveMessage('✗ Erro ao salvar');
+      setTimeout(() => setGoogleSaveMessage(''), 2000);
+    } finally {
+      setSavingGoogleSettings(false);
+    }
+  };
+
+  const handleSaveGoogleUrl = async () => {
+    if (!selectedEstablishment) return;
+
+    setSavingGoogleSettings(true);
+    setGoogleSaveMessage('');
+
+    try {
+      const res = await fetch(`/api/establishments/${selectedEstablishment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          googleReviewUrl: googleReviewUrl.trim() || null,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedEstablishment((prev) => ({
+          ...prev!,
+          google_review_url: data.establishment.google_review_url,
+        }));
+        setGoogleSaveMessage('✓ Link salvo com sucesso!');
+        setTimeout(() => setGoogleSaveMessage(''), 2000);
+      } else {
+        setGoogleSaveMessage('✗ Erro ao salvar o link');
+        setTimeout(() => setGoogleSaveMessage(''), 2000);
+      }
+    } catch (error) {
+      console.error('Error saving Google URL:', error);
+      setGoogleSaveMessage('✗ Erro ao salvar');
+      setTimeout(() => setGoogleSaveMessage(''), 2000);
+    } finally {
+      setSavingGoogleSettings(false);
+    }
+  };
+
+  const handleToggleWeeklyReports = async () => {
+    if (!selectedEstablishment) return;
+
+    const newValue = !weeklyReportsEnabled;
+    setWeeklyReportsEnabled(newValue);
+    setSavingWeeklyReports(true);
+
+    try {
+      const res = await fetch(`/api/establishments/${selectedEstablishment.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weeklyReportsEnabled: newValue,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedEstablishment((prev) => ({
+          ...prev!,
+          weekly_reports_enabled: data.establishment.weekly_reports_enabled,
+        }));
+      } else {
+        setWeeklyReportsEnabled(!newValue); // Revert on error
+      }
+    } catch (error) {
+      console.error('Error toggling weekly reports:', error);
+      setWeeklyReportsEnabled(!newValue); // Revert on error
+    } finally {
+      setSavingWeeklyReports(false);
     }
   };
 
@@ -672,10 +785,11 @@ export default function DashboardPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setShowGoogleReviewPrompt((prev) => !prev)}
+                  onClick={handleToggleGoogleReviewPrompt}
+                  disabled={savingGoogleSettings}
                   className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
                     showGoogleReviewPrompt ? 'bg-indigo-500' : 'bg-gray-200'
-                  }`}
+                  } ${savingGoogleSettings ? 'opacity-50 cursor-not-allowed' : ''}`}
                   aria-pressed={showGoogleReviewPrompt}
                 >
                   <span
@@ -698,13 +812,13 @@ export default function DashboardPage() {
 
                 <button
                   type="button"
-                  onClick={handleSaveGoogleSettings}
+                  onClick={handleSaveGoogleUrl}
                   disabled={savingGoogleSettings}
                   className={`w-full mt-4 py-3 rounded-xl font-bold text-white transition-colors ${
                     savingGoogleSettings ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-800 hover:bg-gray-700'
                   }`}
                 >
-                  {savingGoogleSettings ? 'Salvando...' : 'Salvar configurações'}
+                  {savingGoogleSettings ? 'Salvando...' : 'Salvar link'}
                 </button>
                 {googleSaveMessage && (
                   <p className={`text-sm mt-3 font-medium ${
@@ -714,6 +828,47 @@ export default function DashboardPage() {
                   }`}>
                     {googleSaveMessage}
                   </p>
+                )}
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h3 className="font-bold text-gray-800 mb-1">Relatórios Semanais</h3>
+                <p className="text-gray-500 text-sm mb-4">
+                  Receba um resumo semanal dos feedbacks por e-mail.
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-1">
+                      Enviar relatórios por e-mail
+                    </label>
+                    <p className="text-sm text-gray-500">
+                      Toda segunda-feira às 9h UTC
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleToggleWeeklyReports}
+                    disabled={savingWeeklyReports}
+                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                      weeklyReportsEnabled ? 'bg-indigo-500' : 'bg-gray-200'
+                    } ${savingWeeklyReports ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    aria-pressed={weeklyReportsEnabled}
+                  >
+                    <span
+                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                        weeklyReportsEnabled ? 'translate-x-7' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {weeklyReportsEnabled && (
+                  <div className="mt-4 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+                    <p className="text-sm text-indigo-700">
+                      ✓ Você receberá relatórios semanais no e-mail: <strong>{selectedEstablishment?.alert_email}</strong>
+                    </p>
+                  </div>
                 )}
               </div>
             </div>

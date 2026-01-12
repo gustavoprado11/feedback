@@ -149,7 +149,25 @@ export default function FeedbackPage() {
           )}
         </div>
         <footer className="absolute bottom-6 text-sm text-gray-500">
-          Powered by <span className="text-indigo-500 font-semibold">Diz Aí</span>
+          Powered by{' '}
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-indigo-500 font-semibold hover:text-indigo-600 transition-colors"
+            title="Quer implementar o Diz Aí no seu estabelecimento?"
+          >
+            Diz Aí
+          </a>
+          {' · '}
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-indigo-500 transition-colors text-xs"
+          >
+            Implementar no meu negócio
+          </a>
         </footer>
       </div>
     );
@@ -267,7 +285,25 @@ export default function FeedbackPage() {
       </main>
 
       <footer className="py-4 text-center text-sm text-gray-500">
-        Powered by <span className="text-indigo-500 font-semibold">Diz Aí</span>
+        Powered by{' '}
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-indigo-500 font-semibold hover:text-indigo-600 transition-colors"
+          title="Quer implementar o Diz Aí no seu estabelecimento?"
+        >
+          Diz Aí
+        </a>
+        {' · '}
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-400 hover:text-indigo-500 transition-colors text-xs"
+        >
+          Implementar no meu negócio
+        </a>
       </footer>
 
       <style jsx>{`

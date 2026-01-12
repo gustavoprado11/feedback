@@ -109,6 +109,7 @@ export async function PUT(
       alertEmail,
       googleReviewUrl,
       showGoogleReviewPrompt,
+      weeklyReportsEnabled,
     } = await request.json();
 
     const updates: Record<string, string | boolean | null> = {
@@ -122,6 +123,10 @@ export async function PUT(
 
     if (showGoogleReviewPrompt !== undefined) {
       updates.show_google_review_prompt = Boolean(showGoogleReviewPrompt);
+    }
+
+    if (weeklyReportsEnabled !== undefined) {
+      updates.weekly_reports_enabled = Boolean(weeklyReportsEnabled);
     }
 
     const updated = await updateEstablishment(id, updates);

@@ -24,6 +24,7 @@ export interface Establishment {
   alert_email: string;
   google_review_url: string | null;
   show_google_review_prompt: boolean;
+  weekly_reports_enabled: boolean;
   user_id: string;
   created_at: string;
 }

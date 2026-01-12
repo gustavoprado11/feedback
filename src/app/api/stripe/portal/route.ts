@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
-import { stripe } from '@/lib/stripe';
+import { stripe, isStripeConfigured } from '@/lib/stripe';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,6 +8,13 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
+    if (!isStripeConfigured()) {
+      return NextResponse.json(
+        { error: 'Stripe não está configurado' },
+        { status: 500 }
+      );
     }
 
     if (!user.stripeCustomerId) {

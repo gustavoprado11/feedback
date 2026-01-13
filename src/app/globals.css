@@ -49,19 +49,19 @@ body {
 @keyframes fade-in-up {
   0% {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(30px) scale(0.95);
   }
   20% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
   80% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-10px) scale(0.95);
   }
 }
 
@@ -69,13 +69,50 @@ body {
   animation: fade-in-up 3s ease-in-out infinite;
 }
 
+/* Mobile optimizations for notifications */
 @media (max-width: 768px) {
-  /* Hide notifications on mobile to avoid clutter */
-  .absolute.top-20,
-  .absolute.top-32,
-  .absolute.top-1\/2,
-  .absolute.bottom-20,
+  /* Make notifications smaller and adjust positioning on mobile */
+  .absolute.animate-fade-in-up {
+    transform: scale(0.75);
+    transform-origin: center;
+  }
+
+  /* Adjust specific positions for mobile */
+  .absolute.top-20 {
+    top: 3rem;
+    left: 0.5rem;
+  }
+
+  .absolute.top-32 {
+    top: 5rem;
+    right: 0.5rem;
+  }
+
   .absolute.bottom-32 {
-    display: none !important;
+    bottom: 6rem;
+    left: 0.5rem;
+  }
+
+  .absolute.bottom-20 {
+    bottom: 4rem;
+    right: 0.5rem;
+  }
+
+  .absolute.top-1\/2 {
+    top: 50%;
+  }
+
+  /* Reduce notification card max width on mobile */
+  .absolute.animate-fade-in-up .max-w-xs {
+    max-width: 11rem;
+  }
+
+  /* Smaller text on mobile */
+  .absolute.animate-fade-in-up .text-sm {
+    font-size: 0.75rem;
+  }
+
+  .absolute.animate-fade-in-up .text-xs {
+    font-size: 0.625rem;
   }
 }

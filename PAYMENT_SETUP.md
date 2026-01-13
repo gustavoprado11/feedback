@@ -2,6 +2,23 @@
 
 Este documento descreve todas as mudanças implementadas para garantir que novos usuários precisem pagar antes de acessar o sistema.
 
+## ⚠️ PASSO OBRIGATÓRIO: Migration do Banco de Dados
+
+**ANTES DE TUDO:** Você precisa executar a migration SQL no Supabase para adicionar os campos necessários.
+
+### 🚀 Execução Rápida
+
+1. Acesse: [Supabase Dashboard](https://supabase.com/dashboard) → Seu Projeto → **SQL Editor**
+2. Clique em **New Query**
+3. Cole o conteúdo do arquivo: [supabase/migrations/001_add_stripe_fields.sql](supabase/migrations/001_add_stripe_fields.sql)
+4. Clique em **Run**
+
+📖 **Guia completo:** [supabase/MIGRATION_GUIDE.md](supabase/MIGRATION_GUIDE.md)
+
+**Sem executar esta migration, o sistema NÃO funcionará!** Os campos `stripe_customer_id`, `stripe_subscription_id`, `subscription_status` e `subscription_end_date` são essenciais.
+
+---
+
 ## 📋 Mudanças Implementadas
 
 ### 1. Nova Página de Assinatura (`/subscribe`)

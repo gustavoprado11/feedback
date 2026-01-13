@@ -53,31 +53,57 @@ export async function POST(request: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
 
+        console.log('[Webhook] Processing checkout.session.completed:', {
+          sessionId: session.id,
+          customerEmail: session.customer_email,
+          customerId: session.customer,
+          subscriptionId: session.subscription,
+          hasMetadata: !!session.metadata,
+        });
+
         // Try to get userId from metadata (for Checkout Sessions)
         let userId: string | undefined | null = session.metadata?.userId;
 
         // If no metadata (Payment Links), get userId from customer email
         if (!userId && session.customer_email) {
+          console.log('[Webhook] Trying to find user by email:', session.customer_email);
           const user = await findUserByEmail(session.customer_email);
           userId = user?.id;
+          if (userId) {
+            console.log('[Webhook] Found user by email:', userId);
+          }
         }
 
         // If still no userId but we have a customer ID, try that
         if (!userId && session.customer) {
+          console.log('[Webhook] Trying to find user by customer ID:', session.customer);
           userId = await getUserIdFromCustomer(session.customer as string);
+          if (userId) {
+            console.log('[Webhook] Found user by customer ID:', userId);
+          }
         }
 
         if (userId && session.subscription) {
+          console.log('[Webhook] Updating user subscription:', {
+            userId,
+            customerId: session.customer,
+            subscriptionId: session.subscription,
+          });
+
           await updateUserSubscription(userId, {
             stripe_customer_id: session.customer as string,
             stripe_subscription_id: session.subscription as string,
             subscription_status: 'active',
           });
+
+          console.log('[Webhook] Successfully activated subscription for user:', userId);
         } else {
-          console.error('Could not find user for checkout session:', {
+          console.error('[Webhook] Could not find user for checkout session:', {
             sessionId: session.id,
             customerEmail: session.customer_email,
             customerId: session.customer,
+            foundUserId: userId,
+            hasSubscription: !!session.subscription,
           });
         }
         break;
@@ -88,18 +114,42 @@ export async function POST(request: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
 
+        console.log('[Webhook] Processing subscription event:', {
+          subscriptionId: subscription.id,
+          customerId,
+          status: subscription.status,
+        });
+
         const userId = await getUserIdFromCustomer(customerId);
-        if (!userId) break;
+
+        if (!userId) {
+          console.error('[Webhook] Could not find user for customer:', customerId);
+          // Try to get customer email for logging
+          try {
+            const customer = await stripe.customers.retrieve(customerId);
+            if (!customer.deleted) {
+              console.error('[Webhook] Customer email:', customer.email);
+            }
+          } catch (e) {
+            console.error('[Webhook] Could not retrieve customer details');
+          }
+          break;
+        }
+
+        console.log('[Webhook] Found userId:', userId);
 
         // current_period_end is a unix timestamp
         const periodEnd = (subscription as any).current_period_end;
         const endDate = new Date(periodEnd * 1000);
 
         await updateUserSubscription(userId, {
+          stripe_customer_id: customerId, // Ensure customer ID is saved
           stripe_subscription_id: subscription.id,
           subscription_status: subscription.status,
           subscription_end_date: endDate.toISOString(),
         });
+
+        console.log('[Webhook] Successfully updated subscription for user:', userId);
         break;
       }
 

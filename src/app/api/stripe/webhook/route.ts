@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session;
 
         // Try to get userId from metadata (for Checkout Sessions)
-        let userId = session.metadata?.userId;
+        let userId: string | undefined = session.metadata?.userId;
 
         // If no metadata (Payment Links), get userId from customer email
         if (!userId && session.customer_email) {

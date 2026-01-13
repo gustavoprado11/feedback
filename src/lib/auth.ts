@@ -56,6 +56,9 @@ export async function hasActiveSubscription(userId: string): Promise<boolean> {
   // Check if subscription is trialing
   if (user.subscription_status === 'trialing') return true;
 
+  // Allow past_due with warning (user can still access)
+  if (user.subscription_status === 'past_due') return true;
+
   // Check if subscription has ended but grace period is still valid
   if (user.subscription_end_date) {
     const endDate = new Date(user.subscription_end_date);

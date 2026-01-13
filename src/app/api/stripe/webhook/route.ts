@@ -52,12 +52,32 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-        const userId = session.metadata?.userId;
+
+        // Try to get userId from metadata (for Checkout Sessions)
+        let userId = session.metadata?.userId;
+
+        // If no metadata (Payment Links), get userId from customer email
+        if (!userId && session.customer_email) {
+          const user = await findUserByEmail(session.customer_email);
+          userId = user?.id;
+        }
+
+        // If still no userId but we have a customer ID, try that
+        if (!userId && session.customer) {
+          userId = await getUserIdFromCustomer(session.customer as string);
+        }
 
         if (userId && session.subscription) {
           await updateUserSubscription(userId, {
+            stripe_customer_id: session.customer as string,
             stripe_subscription_id: session.subscription as string,
             subscription_status: 'active',
+          });
+        } else {
+          console.error('Could not find user for checkout session:', {
+            sessionId: session.id,
+            customerEmail: session.customer_email,
+            customerId: session.customer,
           });
         }
         break;

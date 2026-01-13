@@ -43,7 +43,8 @@ function RegisterForm() {
       const data = await res.json();
 
       if (res.ok) {
-        router.push(redirect || '/dashboard');
+        // Redirect to subscribe page with auto parameter
+        router.push('/subscribe?auto=true');
       } else {
         setError(data.error || 'Erro ao criar conta');
       }

@@ -44,3 +44,38 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* Feedback notification animations */
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 3s ease-in-out infinite;
+}
+
+@media (max-width: 768px) {
+  /* Hide notifications on mobile to avoid clutter */
+  .absolute.top-20,
+  .absolute.top-32,
+  .absolute.top-1\/2,
+  .absolute.bottom-20,
+  .absolute.bottom-32 {
+    display: none !important;
+  }
+}

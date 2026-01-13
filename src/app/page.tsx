@@ -34,11 +34,133 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <main>
-        <section className="py-20 px-4">
-          <div className="max-w-4xl mx-auto text-center">
+        <section className="py-20 px-4 relative overflow-hidden">
+          {/* Animated Feedback Notifications */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Notification 1 - Top Left */}
+            <div className="absolute top-20 left-10 animate-fade-in-up opacity-0" style={{ animationDelay: '0s', animationDuration: '3s', animationIterationCount: 'infinite' }}>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 max-w-xs">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-800">Ótimo</span>
+                      <span className="text-xs text-gray-400">agora</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Adorei o atendimento!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notification 2 - Top Right */}
+            <div className="absolute top-32 right-10 animate-fade-in-up opacity-0" style={{ animationDelay: '2s', animationDuration: '3s', animationIterationCount: 'infinite' }}>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 max-w-xs">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 17.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-800">Ok</span>
+                      <span className="text-xs text-gray-400">agora</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Pode melhorar</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notification 3 - Bottom Left */}
+            <div className="absolute bottom-32 left-20 animate-fade-in-up opacity-0" style={{ animationDelay: '4s', animationDuration: '3s', animationIterationCount: 'infinite' }}>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 max-w-xs">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-800">Ótimo</span>
+                      <span className="text-xs text-gray-400">agora</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Ambiente perfeito!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notification 4 - Middle Right */}
+            <div className="absolute top-1/2 right-5 animate-fade-in-up opacity-0" style={{ animationDelay: '6s', animationDuration: '3s', animationIterationCount: 'infinite' }}>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 max-w-xs">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-800">Ruim</span>
+                      <span className="text-xs text-gray-400">agora</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Demora no atendimento</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notification 5 - Bottom Right */}
+            <div className="absolute bottom-20 right-32 animate-fade-in-up opacity-0" style={{ animationDelay: '8s', animationDuration: '3s', animationIterationCount: 'infinite' }}>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 max-w-xs">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-800">Ótimo</span>
+                      <span className="text-xs text-gray-400">agora</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Comida deliciosa!</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Notification 6 - Middle Left */}
+            <div className="absolute top-1/2 left-5 animate-fade-in-up opacity-0" style={{ animationDelay: '10s', animationDuration: '3s', animationIterationCount: 'infinite' }}>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 max-w-xs">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 17.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-800">Ok</span>
+                      <span className="text-xs text-gray-400">agora</span>
+                    </div>
+                    <p className="text-xs text-gray-600">Preço justo</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-4xl mx-auto text-center relative z-10">
             <h1 className="text-4xl md:text-5xl font-black text-gray-800 mb-6 leading-tight">
-              Feedback dos seus clientes em{' '}
-              <span className="text-indigo-500">30 segundos</span>
+              Feedback dos seus clientes em <span className="text-indigo-500 whitespace-nowrap">30 segundos</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               Colete feedback de forma rápida, anônima e privada via QR Code.

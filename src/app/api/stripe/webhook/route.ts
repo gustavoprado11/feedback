@@ -140,14 +140,35 @@ export async function POST(request: NextRequest) {
 
         // current_period_end is a unix timestamp
         const periodEnd = (subscription as any).current_period_end;
-        const endDate = new Date(periodEnd * 1000);
+        let endDate: string | undefined;
 
-        await updateUserSubscription(userId, {
-          stripe_customer_id: customerId, // Ensure customer ID is saved
+        if (periodEnd && typeof periodEnd === 'number') {
+          try {
+            endDate = new Date(periodEnd * 1000).toISOString();
+          } catch (error) {
+            console.error('[Webhook] Error converting period end date:', error);
+            endDate = undefined;
+          }
+        } else {
+          console.warn('[Webhook] current_period_end is missing or invalid:', periodEnd);
+        }
+
+        const updateData: {
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          subscription_status: string;
+          subscription_end_date?: string;
+        } = {
+          stripe_customer_id: customerId,
           stripe_subscription_id: subscription.id,
           subscription_status: subscription.status,
-          subscription_end_date: endDate.toISOString(),
-        });
+        };
+
+        if (endDate) {
+          updateData.subscription_end_date = endDate;
+        }
+
+        await updateUserSubscription(userId, updateData);
 
         console.log('[Webhook] Successfully updated subscription for user:', userId);
         break;

@@ -80,6 +80,8 @@ export async function updateUserSubscription(
     subscription_end_date?: string;
   }
 ): Promise<User | null> {
+  console.log('[Supabase] Updating user subscription:', { userId, subscriptionData });
+
   const { data, error } = await supabase
     .from('users')
     .update(subscriptionData)
@@ -87,7 +89,19 @@ export async function updateUserSubscription(
     .select()
     .single();
 
-  if (error) return null;
+  if (error) {
+    console.error('[Supabase] Error updating user subscription:', {
+      error: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      userId,
+      subscriptionData,
+    });
+    throw new Error(`Failed to update user subscription: ${error.message}`);
+  }
+
+  console.log('[Supabase] Successfully updated user subscription:', data);
   return data;
 }
 

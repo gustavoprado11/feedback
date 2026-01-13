@@ -17,6 +17,12 @@ ADD COLUMN IF NOT EXISTS weekly_reports_enabled boolean default true;
 CREATE INDEX IF NOT EXISTS idx_users_stripe_customer_id ON users(stripe_customer_id);
 CREATE INDEX IF NOT EXISTS idx_users_subscription_status ON users(subscription_status);
 
+-- Add RLS policy for updating users (required for Stripe webhook)
+CREATE POLICY IF NOT EXISTS "Allow service to update users" ON users
+  FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
+
 -- Add comments for documentation
 COMMENT ON COLUMN users.stripe_customer_id IS 'Stripe customer ID for billing';
 COMMENT ON COLUMN users.stripe_subscription_id IS 'Active Stripe subscription ID';

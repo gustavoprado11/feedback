@@ -23,7 +23,7 @@ export default function HomePage() {
               Entrar
             </Link>
             <Link
-              href="/pricing"
+              href="/register?plan=true"
               className="px-4 py-2 bg-indigo-500 text-white font-medium rounded-xl hover:bg-indigo-600 transition-colors"
             >
               Assinar - R$ 19,90/mês
@@ -46,16 +46,16 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
               <Link
-                href="/pricing"
+                href="/register?plan=true"
                 className="inline-block px-8 py-4 bg-indigo-500 text-white font-bold text-lg rounded-xl hover:bg-indigo-600 transition-colors shadow-lg shadow-indigo-200"
               >
                 Começar Agora - R$ 19,90/mês
               </Link>
               <Link
-                href="/pricing"
+                href="/register?plan=true"
                 className="inline-block px-8 py-4 bg-white text-indigo-500 font-bold text-lg rounded-xl hover:bg-gray-50 transition-colors border-2 border-indigo-500"
               >
-                Ver Planos
+                Ver Detalhes do Plano
               </Link>
             </div>
           </div>
@@ -225,7 +225,7 @@ export default function HomePage() {
               Por apenas R$ 19,90/mês, veja a diferença que o feedback em tempo real pode fazer.
             </p>
             <Link
-              href="/pricing"
+              href="/register?plan=true"
               className="inline-block px-8 py-4 bg-white text-indigo-500 font-bold text-lg rounded-xl hover:bg-gray-100 transition-colors"
             >
               Assinar Agora - R$ 19,90/mês

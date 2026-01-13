@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
+const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/9B628qgT21XT2KYfcIfw400';
+
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -14,9 +16,16 @@ function RegisterForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [redirect, setRedirect] = useState<string | null>(null);
+  const [isPlanFlow, setIsPlanFlow] = useState(false);
 
   useEffect(() => {
     const redirectParam = searchParams.get('redirect');
+    const planParam = searchParams.get('plan');
+
+    if (planParam === 'true') {
+      setIsPlanFlow(true);
+    }
+
     if (redirectParam) {
       setRedirect(redirectParam);
     }
@@ -43,8 +52,13 @@ function RegisterForm() {
       const data = await res.json();
 
       if (res.ok) {
-        // Redirect to subscribe page with auto parameter
-        router.push('/subscribe?auto=true');
+        // If coming from plan/pricing flow, redirect directly to Stripe
+        if (isPlanFlow) {
+          window.location.href = STRIPE_PAYMENT_LINK;
+        } else {
+          // Otherwise, redirect to dashboard
+          router.push(redirect || '/dashboard');
+        }
       } else {
         setError(data.error || 'Erro ao criar conta');
       }
@@ -69,9 +83,35 @@ function RegisterForm() {
           </Link>
         </div>
 
+        {/* Plan Info Banner */}
+        {isPlanFlow && (
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 mb-6 text-white">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Você está a 2 passos de começar!</h3>
+                <p className="text-sm text-white/90 mb-2">
+                  1. Primeiro, crie sua conta gratuitamente<br />
+                  2. Depois, você será levado ao pagamento seguro (R$ 19,90/mês)
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Cancele quando quiser, sem multas</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            Criar Conta
+            {isPlanFlow ? 'Passo 1: Criar Conta' : 'Criar Conta'}
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -137,7 +177,7 @@ function RegisterForm() {
                 }
               `}
             >
-              {loading ? 'Criando conta...' : 'Criar Conta'}
+              {loading ? 'Criando conta...' : isPlanFlow ? 'Criar Conta e Prosseguir para Pagamento' : 'Criar Conta'}
             </button>
           </form>
 

@@ -49,13 +49,20 @@ export async function GET(
   const { searchParams } = new URL(request.url);
   const days = searchParams.get('days');
   const rating = searchParams.get('rating');
+  const startDate = searchParams.get('startDate');
+  const endDate = searchParams.get('endDate');
 
   const feedbacks = await findFeedbacksByEstablishmentId(id, {
     days: days ? parseInt(days) : undefined,
     rating: rating || undefined,
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
   });
 
-  const stats = await getFeedbackStats(id);
+  const stats = await getFeedbackStats(id, {
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+  });
 
   return NextResponse.json({
     establishment,

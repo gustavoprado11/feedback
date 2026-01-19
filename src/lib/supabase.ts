@@ -188,7 +188,7 @@ export async function createFeedback(data: {
 
 export async function findFeedbacksByEstablishmentId(
   establishmentId: string,
-  options?: { days?: number; rating?: string }
+  options?: { days?: number; rating?: string; startDate?: string; endDate?: string }
 ): Promise<Feedback[]> {
   let query = supabase
     .from('feedbacks')
@@ -196,7 +196,14 @@ export async function findFeedbacksByEstablishmentId(
     .eq('establishment_id', establishmentId)
     .order('created_at', { ascending: false });
 
-  if (options?.days) {
+  if (options?.startDate && options?.endDate) {
+    // Use date range filter
+    const startOfDay = new Date(options.startDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(options.endDate);
+    endOfDay.setHours(23, 59, 59, 999);
+    query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
+  } else if (options?.days) {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - options.days);
     query = query.gte('created_at', cutoff.toISOString());
@@ -212,12 +219,15 @@ export async function findFeedbacksByEstablishmentId(
   return data || [];
 }
 
-export async function getFeedbackStats(establishmentId: string): Promise<{
+export async function getFeedbackStats(
+  establishmentId: string,
+  options?: { startDate?: string; endDate?: string }
+): Promise<{
   total: number;
   happiness: number;
   issues: number;
 }> {
-  const feedbacks = await findFeedbacksByEstablishmentId(establishmentId);
+  const feedbacks = await findFeedbacksByEstablishmentId(establishmentId, options);
   const total = feedbacks.length;
   const positive = feedbacks.filter(f => f.rating === 'great').length;
   const negative = feedbacks.filter(f => f.rating === 'bad').length;

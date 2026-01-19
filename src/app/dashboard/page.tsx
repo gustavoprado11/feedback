@@ -60,6 +60,8 @@ export default function DashboardPage() {
   const [editAlertEmail, setEditAlertEmail] = useState('');
   const [savingEstablishment, setSavingEstablishment] = useState(false);
   const [establishmentSaveMessage, setEstablishmentSaveMessage] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
     async function checkAuth() {
@@ -145,8 +147,12 @@ export default function DashboardPage() {
 
     // Load feedbacks
     try {
-      const ratingParam = filter === 'bad' ? '&rating=bad' : '';
-      const res = await fetch(`/api/establishments/${establishment.id}?${ratingParam}`);
+      const params = new URLSearchParams();
+      if (filter === 'bad') params.append('rating', 'bad');
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const res = await fetch(`/api/establishments/${establishment.id}${queryString}`);
       if (res.ok) {
         const data = await res.json();
         setSelectedEstablishment(data.establishment);
@@ -159,15 +165,19 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Error loading feedbacks:', error);
     }
-  }, [filter]);
+  }, [filter, startDate, endDate]);
 
   useEffect(() => {
     async function reloadFeedbacks() {
       if (!selectedEstablishment) return;
 
       try {
-        const ratingParam = filter === 'bad' ? '&rating=bad' : '';
-        const res = await fetch(`/api/establishments/${selectedEstablishment.id}?${ratingParam}`);
+        const params = new URLSearchParams();
+        if (filter === 'bad') params.append('rating', 'bad');
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+        const queryString = params.toString() ? `?${params.toString()}` : '';
+        const res = await fetch(`/api/establishments/${selectedEstablishment.id}${queryString}`);
         if (res.ok) {
           const data = await res.json();
           setFeedbacks(data.feedbacks);
@@ -179,7 +189,7 @@ export default function DashboardPage() {
     }
 
     reloadFeedbacks();
-  }, [filter, selectedEstablishment?.id]);
+  }, [filter, startDate, endDate, selectedEstablishment?.id]);
 
   const handleManageSubscription = async () => {
     setManagingSubscription(true);
@@ -512,7 +522,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3 .97 4.29L2 22l5.71-.97C9 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.38 0-2.68-.28-3.88-.78l-.28-.12-2.9.49.49-2.9-.12-.28C4.78 14.68 4.5 13.38 4.5 12c0-4.14 3.36-7.5 7.5-7.5s7.5 3.36 7.5 7.5-3.36 7.5-7.5 7.5z"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3 .97 4.29L2 22l5.71-.97C9 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.38 0-2.68-.28-3.88-.78l-.28-.12-2.9.49.49-2.9-.12-.28C4.78 14.68 4.5 13.38 4.5 12c0-4.14 3.36-7.5 7.5-7.5s7.5 3.36 7.5 7.5-3.36 7.5-7.5 7.5z" />
               </svg>
             </div>
             <span className="text-xl font-bold text-gray-800">Diz Aí</span>
@@ -596,23 +606,22 @@ export default function DashboardPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600">Status</span>
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        user?.subscriptionStatus === 'active'
-                          ? 'bg-green-100 text-green-700'
-                          : user?.subscriptionStatus === 'trialing'
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${user?.subscriptionStatus === 'active'
+                        ? 'bg-green-100 text-green-700'
+                        : user?.subscriptionStatus === 'trialing'
                           ? 'bg-blue-100 text-blue-700'
                           : user?.subscriptionStatus === 'past_due'
-                          ? 'bg-amber-100 text-amber-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
                     >
                       {user?.subscriptionStatus === 'active'
                         ? 'Ativa'
                         : user?.subscriptionStatus === 'trialing'
-                        ? 'Período de teste'
-                        : user?.subscriptionStatus === 'past_due'
-                        ? 'Pagamento pendente'
-                        : 'Inativa'}
+                          ? 'Período de teste'
+                          : user?.subscriptionStatus === 'past_due'
+                            ? 'Pagamento pendente'
+                            : 'Inativa'}
                     </span>
                   </div>
 
@@ -794,20 +803,18 @@ export default function DashboardPage() {
                         type="button"
                         onClick={handleSaveEstablishment}
                         disabled={savingEstablishment}
-                        className={`flex-1 py-3 rounded-xl font-bold text-white transition-colors ${
-                          savingEstablishment ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
-                        }`}
+                        className={`flex-1 py-3 rounded-xl font-bold text-white transition-colors ${savingEstablishment ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
+                          }`}
                       >
                         {savingEstablishment ? 'Salvando...' : 'Salvar'}
                       </button>
                     </div>
 
                     {establishmentSaveMessage && (
-                      <p className={`text-sm font-medium ${
-                        establishmentSaveMessage.startsWith('✓')
-                          ? 'text-green-600'
-                          : 'text-red-600'
-                      }`}>
+                      <p className={`text-sm font-medium ${establishmentSaveMessage.startsWith('✓')
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                        }`}>
                         {establishmentSaveMessage}
                       </p>
                     )}
@@ -828,15 +835,13 @@ export default function DashboardPage() {
                   type="button"
                   onClick={handleToggleGoogleReviewPrompt}
                   disabled={savingGoogleSettings}
-                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                    showGoogleReviewPrompt ? 'bg-indigo-500' : 'bg-gray-200'
-                  } ${savingGoogleSettings ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${showGoogleReviewPrompt ? 'bg-indigo-500' : 'bg-gray-200'
+                    } ${savingGoogleSettings ? 'opacity-50 cursor-not-allowed' : ''}`}
                   aria-pressed={showGoogleReviewPrompt}
                 >
                   <span
-                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                      showGoogleReviewPrompt ? 'translate-x-7' : 'translate-x-1'
-                    }`}
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${showGoogleReviewPrompt ? 'translate-x-7' : 'translate-x-1'
+                      }`}
                   />
                 </button>
 
@@ -855,18 +860,16 @@ export default function DashboardPage() {
                   type="button"
                   onClick={handleSaveGoogleUrl}
                   disabled={savingGoogleSettings}
-                  className={`w-full mt-4 py-3 rounded-xl font-bold text-white transition-colors ${
-                    savingGoogleSettings ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-800 hover:bg-gray-700'
-                  }`}
+                  className={`w-full mt-4 py-3 rounded-xl font-bold text-white transition-colors ${savingGoogleSettings ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-800 hover:bg-gray-700'
+                    }`}
                 >
                   {savingGoogleSettings ? 'Salvando...' : 'Salvar link'}
                 </button>
                 {googleSaveMessage && (
-                  <p className={`text-sm mt-3 font-medium ${
-                    googleSaveMessage.startsWith('✓')
-                      ? 'text-green-600'
-                      : 'text-red-600'
-                  }`}>
+                  <p className={`text-sm mt-3 font-medium ${googleSaveMessage.startsWith('✓')
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                    }`}>
                     {googleSaveMessage}
                   </p>
                 )}
@@ -891,15 +894,13 @@ export default function DashboardPage() {
                     type="button"
                     onClick={handleToggleWeeklyReports}
                     disabled={savingWeeklyReports}
-                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                      weeklyReportsEnabled ? 'bg-indigo-500' : 'bg-gray-200'
-                    } ${savingWeeklyReports ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${weeklyReportsEnabled ? 'bg-indigo-500' : 'bg-gray-200'
+                      } ${savingWeeklyReports ? 'opacity-50 cursor-not-allowed' : ''}`}
                     aria-pressed={weeklyReportsEnabled}
                   >
                     <span
-                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                        weeklyReportsEnabled ? 'translate-x-7' : 'translate-x-1'
-                      }`}
+                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${weeklyReportsEnabled ? 'translate-x-7' : 'translate-x-1'
+                        }`}
                     />
                   </button>
                 </div>
@@ -929,26 +930,71 @@ export default function DashboardPage() {
                     <button
                       type="button"
                       onClick={() => setFilter('all')}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        filter === 'all'
-                          ? 'bg-indigo-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'all'
+                        ? 'bg-indigo-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
                     >
                       Todos
                     </button>
                     <button
                       type="button"
                       onClick={() => setFilter('bad')}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        filter === 'bad'
-                          ? 'bg-indigo-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === 'bad'
+                        ? 'bg-indigo-500 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
                     >
                       Apenas Negativos
                     </button>
                   </div>
+                </div>
+
+                {/* Date Filters */}
+                <div className="flex flex-wrap items-center gap-3 mb-6 p-4 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-sm text-gray-600 font-medium">Período:</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none bg-white"
+                      placeholder="Data inicial"
+                    />
+                    <span className="text-gray-400">até</span>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-indigo-400 focus:outline-none bg-white"
+                      placeholder="Data final"
+                    />
+                  </div>
+                  {(startDate || endDate) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStartDate('');
+                        setEndDate('');
+                      }}
+                      className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Limpar
+                    </button>
+                  )}
+                  {startDate && endDate && (
+                    <span className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
+                      Filtrado
+                    </span>
+                  )}
                 </div>
 
                 {feedbacks.length === 0 ? (
@@ -966,11 +1012,10 @@ export default function DashboardPage() {
                       return (
                         <div
                           key={feedback.id}
-                          className={`p-4 rounded-xl border ${
-                            feedback.rating === 'bad'
-                              ? 'border-red-200 bg-red-50'
-                              : 'border-gray-100 bg-white'
-                          }`}
+                          className={`p-4 rounded-xl border ${feedback.rating === 'bad'
+                            ? 'border-red-200 bg-red-50'
+                            : 'border-gray-100 bg-white'
+                            }`}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-3">
